@@ -190,11 +190,10 @@ font-weight:600;
 <div class="row"><span>Cilok</span><input type="number" id="cilok"></div>
 <div class="row"><span>Cimol</span><input type="number" id="cimol"></div>
 <div class="row"><span>Cireng</span><input type="number" id="cireng"></div>
-<div class="row"><span>Kripik Kolek</span><input type="number" id="kripik_kolek"></div>
-<div class="row"><span>Piscok Molen</span><input type="number" id="piscok_molen"></div>
-<div class="row"><span>Dimsum Maklor Moci</span><input type="number" id="dimsum_maklor_moci"></div>
-<div class="row"><span>Kebab</span><input type="number" id="kebab"></div>
-<div class="row"><span>Sosis Roti Gurita</span><input type="number" id="sosis_roti_gurita"></div>
+<div class="row"><span>Kripik Pangsit</span><input type="number" id="kripik_pangsit"></div>
+<div class="row"><span>Piscok</span><input type="number" id="piscok"></div>
+<div class="row"><span>Dimsum</span><input type="number" id="dimsum"></div>
+<div class="row"><span>Maklor</span><input type="number" id="maklor"></div>
 <!-- SLOT TAMBAHAN -->
 <div class="row">
 <select id="slot1">
@@ -202,11 +201,10 @@ font-weight:600;
 <option>Tahu Batagor</option>
 <option>Cilok</option>
 <option>Cimol Cireng</option>
-<option>Kripik Kolek</option>
-<option>Piscok Molen</option>
-<option>Dimsum Maklor Moci</option>
-<option>Kebab</option>
-<option>Sosis Roti Gurita</option>
+<option>Kripik Pangsit</option>
+<option>Piscok</option>
+<option>Dimsum</option>
+<option>Maklor</option>
 </select>
 <input type="number" id="slot1_jumlah">
 </div>
@@ -359,11 +357,11 @@ items.push({
 });
 }
 tambah("Cilok","cilok");
-tambah("Kripik Kolek","kripik_kolek");
-tambah("Piscok Molen","piscok_molen");
-tambah("Dimsum Maklor Moci","dimsum_maklor_moci");
+tambah("Kripik Pangsit","kripik_pangsit");
+tambah("Piscok","piscok");
+tambah("Dimsum","dimsum");
+tambah("Maklor","maklor");
 tambah("Kebab","kebab");
-tambah("Sosis Roti Gurita","sosis_roti_gurita");
 // SLOT TAMBAHAN
 function tambahSlot(idBarang,idJumlah){
 let barang=document.getElementById(idBarang).value;
@@ -429,11 +427,11 @@ let urutan = [
   "Tahu Batagor",
   "Cilok",
   "Cimol Cireng",
-  "Kripik Kolek",
-  "Piscok Molen",
-  "Dimsum Maklor Moci",
-  "Kebab",
-  "Sosis Roti Gurita"
+  "Kripik Pangsit",
+  "Piscok",
+  "Dimsum",
+  "Maklor",
+  "Kebab"
 ];
 
 // urutkan ulang berdasarkan daftar di atas
@@ -480,6 +478,10 @@ list.appendChild(div);
 }
 
 function kosongkan(){
+document.getElementById("kripik_pangsit").value="";
+document.getElementById("piscok").value="";
+document.getElementById("dimsum").value="";
+document.getElementById("maklor").value="";
 document.getElementById("tahu").value="";
 document.getElementById("batagor").value="";
 document.getElementById("cimol").value="";
