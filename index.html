@@ -197,7 +197,8 @@ font-weight:600;
 
 <!-- ✅ FIX: TAMBAH KEBAB -->
 <div class="row"><span>Kebab</span><input type="number" id="kebab"></div>
-
+<!-- 🔥 ITEM DINAMIS DARI SETTING -->
+<div id="dynamicItems"></div>
 <!-- SLOT TAMBAHAN -->
 <div class="row">
 <select id="slot1">
@@ -316,7 +317,16 @@ let tempat=document.getElementById("tempat").value;
 let jenis=document.getElementById("jenis").value;
 
 let items=[];
-
+// 🔥 AMBIL ITEM DINAMIS
+document.querySelectorAll("#dynamicItems input").forEach(input=>{
+let val = input.value;
+if(val && val != 0){
+items.push({
+barang: input.previousElementSibling.innerText,
+jumlah: val
+});
+}
+});
 
 function tambah(nama,id){
 let val=document.getElementById(id).value;
@@ -431,7 +441,35 @@ list.appendChild(div);
 
 });
 }
+function loadItems(){
 
+let container = document.getElementById("dynamicItems");
+if(!container) return; // 🔥 penting
+
+container.innerHTML = "";
+
+db.ref("items").once("value",snap=>{
+
+snap.forEach(c=>{
+
+let nama = c.val();
+let id = nama.toLowerCase().replace(/\s/g,'_');
+
+let div = document.createElement("div");
+div.className="row";
+
+div.innerHTML = `
+<span>${nama}</span>
+<input type="number" id="${id}">
+`;
+
+container.appendChild(div);
+
+});
+
+});
+
+}
 </script>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -442,6 +480,16 @@ firebase.initializeApp({
 databaseURL:"https://maqshof-d5772-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
 const db=firebase.database();
+window.onload = function(){
+
+// pastikan firebase sudah siap
+if(typeof db !== "undefined"){
+  loadItems();
+}else{
+  setTimeout(loadItems,1000);
+}
+
+}
 </script>
 
 </body>
