@@ -24,72 +24,105 @@ padding:15px;
 box-shadow:0 8px 20px rgba(0,0,0,0.2);
 }
 
+/* 🔥 HEADER FIXED */
+.header{
+position:sticky;
+top:0;
+background:white;
+padding-bottom:10px;
+z-index:10;
+}
+
 h2{
 text-align:center;
 color:#1e3a8a;
+margin:5px 0 10px;
 }
 
+/* INPUT */
 input{
 width:100%;
-padding:12px;
-border-radius:10px;
+padding:14px;
+border-radius:12px;
 border:1px solid #cbd5f5;
 margin-bottom:10px;
-font-size:15px;
+font-size:16px;
 }
 
+/* BUTTON */
 button{
-padding:10px 12px;
 border:none;
-border-radius:10px;
+border-radius:12px;
 font-weight:700;
 cursor:pointer;
 }
 
-.btn-tambah{
+.btn{
 width:100%;
+padding:14px;
+font-size:16px;
+}
+
+.btn-tambah{
 background:#1e3a8a;
-color:white;
-margin-bottom:10px;
-}
-
-.row{
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:1px solid #eee;
-padding:10px 0;
-}
-
-.row span{
-font-weight:700;
-}
-
-.btn-group button{
-margin-left:5px;
-}
-
-.btn-edit{
-background:#facc15;
-}
-
-.btn-hapus{
-background:#ef4444;
 color:white;
 }
 
 .btn-undo{
-width:100%;
 background:#10b981;
 color:white;
 margin-top:10px;
 }
 
 .btn-back{
-width:100%;
 background:#64748b;
 color:white;
 margin-top:10px;
+}
+
+/* ITEM LIST */
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #eee;
+padding:12px 0;
+}
+
+.row span{
+font-weight:700;
+font-size:15px;
+}
+
+/* BUTTON GROUP */
+.btn-group{
+display:flex;
+gap:8px;
+}
+
+.btn-edit{
+background:#facc15;
+padding:10px;
+}
+
+.btn-hapus{
+background:#ef4444;
+color:white;
+padding:10px;
+}
+
+/* 🔥 biar tombol gede di HP */
+.btn-edit, .btn-hapus{
+min-width:45px;
+font-size:16px;
+}
+
+/* EMPTY */
+.empty{
+text-align:center;
+color:#64748b;
+margin-top:10px;
+font-weight:600;
 }
 </style>
 </head>
@@ -99,15 +132,17 @@ margin-top:10px;
 <div class="container">
 <div class="card">
 
+<div class="header">
 <h2>⚙️ Setting Item</h2>
 
-<input type="text" id="namaItem" placeholder="Nama item baru">
-<button class="btn-tambah" onclick="tambahItem()">+ Tambah Item</button>
+<input type="text" id="namaItem" placeholder="Tambah item baru...">
+<button class="btn btn-tambah" onclick="tambahItem()">+ Tambah Item</button>
+</div>
 
-<div id="listItem">Loading...</div>
+<div id="listItem"></div>
 
-<button class="btn-undo" onclick="undo()">↩️ Undo Hapus</button>
-<button class="btn-back" onclick="location.href='index.html'">⬅️ Kembali</button>
+<button class="btn btn-undo" onclick="undo()">↩️ Undo Hapus</button>
+<button class="btn btn-back" onclick="kembali()">⬅️ Kembali ke Input</button>
 
 </div>
 </div>
@@ -121,10 +156,9 @@ databaseURL:"https://maqshof-d5772-default-rtdb.asia-southeast1.firebasedatabase
 });
 
 const db = firebase.database();
-
 let lastDeleted = null;
 
-// 🔥 LOAD DATA
+// 🔥 LOAD
 function loadItems(){
 
 let list = document.getElementById("listItem");
@@ -135,7 +169,7 @@ db.ref("items").on("value",snap=>{
 list.innerHTML = "";
 
 if(!snap.exists()){
-list.innerHTML = "Belum ada item";
+list.innerHTML = "<div class='empty'>Belum ada item</div>";
 return;
 }
 
@@ -175,19 +209,18 @@ return;
 }
 
 db.ref("items").push(nama);
-
 input.value = "";
 
 }
 
-// 🔥 HAPUS + SIMPAN UNTUK UNDO
+// 🔥 HAPUS
 function hapusItem(key){
 
 db.ref("items/"+key).once("value").then(snap=>{
 
 let nama = snap.val();
 
-if(!confirm("Yakin mau hapus '"+nama+"' ?")) return;
+if(!confirm("Hapus '"+nama+"' ?")) return;
 
 lastDeleted = {
 key:key,
@@ -223,14 +256,17 @@ db.ref("items/"+lastDeleted.key).set(lastDeleted.value);
 
 lastDeleted = null;
 
-alert("Berhasil dikembalikan");
+alert("Dikembalikan 👍");
 
 }
 
-// 🔥 INIT
-window.onload = function(){
-loadItems();
+// 🔥 KEMBALI (LEBIH AMAN)
+function kembali(){
+window.location.href = "index.html";
 }
+
+// INIT
+window.onload = loadItems;
 </script>
 
 </body>
