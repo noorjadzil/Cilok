@@ -320,43 +320,26 @@ items.push({barang:nama,jumlah:val});
 }
 }
 
-let tahu = parseInt(document.getElementById("tahu").value) || 0;
-let batagor = parseInt(document.getElementById("batagor").value) || 0;
+// (SEMUA KODE ITEM BIARKAN SAMA)
 
-if(tahu + batagor > 0){
-items.push({barang:"Tahu Batagor",jumlah:tahu+batagor,detail:{tahu,batagor}});
+// 🔥 TAMBAHKAN INI
+let catatan=document.getElementById("catatan").value;
+
+let fotoBase64="";
+let fotoInput=document.getElementById("foto");
+
+if(fotoInput.files.length>0){
+fotoBase64=await kompresGambar(fotoInput.files[0]);
 }
 
-let cimol = parseInt(document.getElementById("cimol").value) || 0;
-let cireng = parseInt(document.getElementById("cireng").value) || 0;
-
-if(cimol + cireng > 0){
-items.push({barang:"Cimol Cireng",jumlah:cimol+cireng,detail:{cimol,cireng}});
-}
-
-tambah("Cilok","cilok");
-tambah("Kripik Pangsit","kripik_pangsit");
-tambah("Piscok","piscok");
-tambah("Dimsum","dimsum");
-tambah("Maklor","maklor");
-tambah("Kebab","kebab");
-
-function tambahSlot(idBarang,idJumlah){
-let barang=document.getElementById(idBarang).value;
-let jumlah=document.getElementById(idJumlah).value;
-if(barang && jumlah && jumlah!=0){
-items.push({barang:barang,jumlah:jumlah});
-}
-}
-
-tambahSlot("slot1","slot1_jumlah");
-tambahSlot("slot2","slot2_jumlah");
-
+// 🔥 INI YANG PENTING
 let data={
   waktu:new Date().toISOString(),
   tempat:tempat,
   jenis:jenis,
-  items:items
+  items:items,
+  foto:fotoBase64,
+  catatan:catatan
 };
 
 await db.ref("jajan").push(data);
