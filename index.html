@@ -391,6 +391,14 @@ div.innerHTML=`
 <div class="laporan-header">${d.jenis} - ${d.tempat}</div>
 <div class="laporan-tanggal">${formatTanggal(d.waktu)}</div>
 <div class="laporan-items">${items}</div>
+
+${d.catatan ? `
+<div style="margin-top:8px;font-weight:700;color:#dc2626">
+Catatan: ${d.catatan}
+</div>
+` : ""}
+
+${d.foto ? `<img src="${d.foto}">` : ""}
 `;
 
 list.appendChild(div);
