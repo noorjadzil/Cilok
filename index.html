@@ -3,6 +3,7 @@
 <head>
 <title>Input Jajan</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
 
 <style>
 body{
@@ -10,17 +11,145 @@ font-family:'Segoe UI',Arial;
 margin:0;
 background:linear-gradient(135deg,#0f172a,#1e3a8a);
 }
-.container{max-width:420px;margin:auto;padding:10px;}
-.card{background:white;border-radius:16px;padding:15px;box-shadow:0 8px 20px rgba(0,0,0,0.2);}
-.tabs{display:flex;background:#1e3a8a;border-radius:12px 12px 0 0;overflow:hidden;margin-bottom:10px;}
-.tab-btn{flex:1;padding:12px;border:none;background:transparent;color:white;font-weight:700;}
-.tab-btn.active{background:#3b82f6;}
-h2{text-align:center;color:#1e3a8a;}
-.row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee;padding:8px 0;}
-.row input{width:80px;}
-button{width:100%;padding:14px;border:none;border-radius:12px;background:#1e3a8a;color:white;font-weight:700;margin-top:15px;}
-img{width:100%;border-radius:10px;margin-top:8px;}
-.laporan-card{background:white;margin-top:12px;padding:12px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+
+.container{
+max-width:420px;
+margin:auto;
+padding:10px;
+}
+
+.card{
+background:white;
+border-radius:16px;
+padding:15px;
+box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+.tabs{
+display:flex;
+background:#1e3a8a;
+border-radius:12px 12px 0 0;
+overflow:hidden;
+margin-bottom:10px;
+}
+
+.tab-btn{
+flex:1;
+padding:12px;
+border:none;
+background:transparent;
+color:white;
+font-weight:700;
+}
+
+.tab-btn.active{
+background:#3b82f6;
+}
+
+h2{
+text-align:center;
+color:#1e3a8a;
+}
+
+label{
+font-weight:700;
+font-size:13px;
+margin-top:8px;
+display:block;
+}
+
+select,input[type="number"]{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:1px solid #cbd5f5;
+margin-bottom:10px;
+font-weight:600;
+}
+
+input[type="number"]{
+text-align:center;
+font-size:16px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #eee;
+padding:8px 0;
+}
+
+.row input{
+width:80px;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+background:#1e3a8a;
+color:white;
+font-weight:700;
+margin-top:15px;
+}
+
+img{
+width:100%;
+border-radius:10px;
+margin-top:8px;
+}
+
+#catatan{
+width:100%;
+padding:12px;
+margin-top:6px;
+border-radius:10px;
+border:1px solid #cbd5f5;
+font-size:15px;
+font-weight:600;
+box-sizing:border-box;
+resize:none;
+}
+
+#catatan:focus{
+outline:none;
+border:2px solid #1e3a8a;
+}
+
+/* 🔥 LAPORAN STYLE BARU */
+.laporan-card{
+background:white;
+margin-top:12px;
+padding:12px;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.laporan-header{
+font-size:18px;
+font-weight:700;
+color:#1e3a8a;
+margin-bottom:6px;
+}
+
+.laporan-tanggal{
+display:inline-block;
+background:#e0edff;
+color:#1e3a8a;
+padding:4px 10px;
+border-radius:8px;
+font-size:16px;
+font-weight:700;
+margin-bottom:8px;
+}
+
+.laporan-items{
+margin-top:6px;
+line-height:1.5;
+font-weight:600;
+}
 </style>
 </head>
 
@@ -35,14 +164,22 @@ img{width:100%;border-radius:10px;margin-top:8px;}
 
 <div class="card">
 
+<!-- INPUT -->
 <div id="inputTab">
+
 <h2>Input Jajan</h2>
 
+<label>Foto</label>
+<input type="file" id="foto" accept="image/*" capture="environment">
+<img id="preview" style="display:none">
+
+<label>Jenis</label>
 <select id="jenis">
 <option value="Masuk">Jajan Masuk</option>
 <option value="Sisa">Jajan Sisa</option>
 </select>
 
+<label>Tempat</label>
 <select id="tempat">
 <option>Ikhwan</option>
 <option>Akhwat</option>
@@ -57,11 +194,51 @@ img{width:100%;border-radius:10px;margin-top:8px;}
 <div class="row"><span>Piscok</span><input type="number" id="piscok"></div>
 <div class="row"><span>Dimsum</span><input type="number" id="dimsum"></div>
 <div class="row"><span>Maklor</span><input type="number" id="maklor"></div>
+
+<!-- ✅ FIX: TAMBAH KEBAB -->
 <div class="row"><span>Kebab</span><input type="number" id="kebab"></div>
 
-<button onclick="kirim()">Simpan</button>
+<!-- SLOT TAMBAHAN -->
+<div class="row">
+<select id="slot1">
+<option value="">-- Pilih --</option>
+<option>Tahu Batagor</option>
+<option>Cilok</option>
+<option>Cimol Cireng</option>
+<option>Kripik Pangsit</option>
+<option>Piscok</option>
+<option>Dimsum</option>
+<option>Maklor</option>
+</select>
+<input type="number" id="slot1_jumlah">
 </div>
 
+<div class="row">
+<select id="slot2">
+<option value="">-- Pilih --</option>
+<option>Tahu Batagor</option>
+<option>Cilok</option>
+<option>Cimol Cireng</option>
+<option>Kripik Pangsit</option>
+<option>Piscok</option>
+<option>Dimsum</option>
+<option>Maklor</option>
+<option>Kebab</option>
+</select>
+<input type="number" id="slot2_jumlah">
+</div>
+
+<label style="margin-top:12px;font-size:16px;font-weight:700;color:#1e3a8a;">
+Catatan
+</label>
+
+<textarea id="catatan" rows="3" placeholder="Tulis catatan..."></textarea>
+
+<button id="tombol" onclick="kirim()">Simpan</button>
+
+</div>
+
+<!-- LAPORAN -->
 <div id="laporanTab" style="display:none">
 <h2>Laporan</h2>
 <div id="listLaporan">Loading...</div>
@@ -75,95 +252,162 @@ img{width:100%;border-radius:10px;margin-top:8px;}
 function showTab(tab,e){
 document.getElementById("inputTab").style.display = tab==="input"?"block":"none";
 document.getElementById("laporanTab").style.display = tab==="laporan"?"block":"none";
+
 document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
 e.target.classList.add("active");
+
 if(tab==="laporan") loadLaporan();
 }
 
-function formatTanggal(w){
-let d=new Date(w);
-return d.toLocaleString("id-ID");
+function formatTanggal(waktu){
+let date = new Date(waktu);
+let hari = date.toLocaleDateString("id-ID",{weekday:"long"});
+let tanggal = date.toLocaleDateString("id-ID",{day:"numeric", month:"long", year:"numeric"});
+let jam = date.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
+return `${hari}, ${tanggal} - ${jam}`;
+}
+
+document.getElementById("foto").addEventListener("change",function(e){
+let file=e.target.files[0];
+if(!file) return;
+let reader=new FileReader();
+reader.onload=function(ev){
+let img=document.getElementById("preview");
+img.src=ev.target.result;
+img.style.display="block";
+}
+reader.readAsDataURL(file);
+});
+
+function kompresGambar(file){
+return new Promise(resolve=>{
+let reader=new FileReader();
+reader.onload=function(e){
+let img=new Image();
+img.src=e.target.result;
+img.onload=function(){
+let canvas=document.createElement("canvas");
+let maxWidth=400;
+let scale=maxWidth/img.width;
+canvas.width=maxWidth;
+canvas.height=img.height*scale;
+let ctx=canvas.getContext("2d");
+ctx.drawImage(img,0,0,canvas.width,canvas.height);
+resolve(canvas.toDataURL("image/jpeg",0.5));
+}
+}
+reader.readAsDataURL(file);
+});
 }
 
 async function kirim(){
 
+let tombol=document.getElementById("tombol");
+if(tombol.disabled) return;
+
+tombol.innerText="Mengirim...";
+tombol.disabled=true;
+
+let tempat=document.getElementById("tempat").value;
+let jenis=document.getElementById("jenis").value;
+
 let items=[];
 
-function ambil(nama,id){
-let v=parseInt(document.getElementById(id).value)||0;
-if(v>0) items.push({barang:nama,jumlah:v});
+function tambah(nama,id){
+let val=document.getElementById(id).value;
+if(val && val!=0){
+items.push({barang:nama,jumlah:val});
+}
 }
 
-let tahu=parseInt(tahu.value)||0;
-let batagor=parseInt(batagor.value)||0;
+let tahu = parseInt(document.getElementById("tahu").value) || 0;
+let batagor = parseInt(document.getElementById("batagor").value) || 0;
 
-if(tahu+batagor>0){
-items.push({
-barang:"Tahu Batagor",
-jumlah:tahu+batagor,
-detail:{tahu,batagor}
-});
+if(tahu + batagor > 0){
+items.push({barang:"Tahu Batagor",jumlah:tahu+batagor,detail:{tahu,batagor}});
 }
 
-let cimol=parseInt(cimol.value)||0;
-let cireng=parseInt(cireng.value)||0;
+let cimol = parseInt(document.getElementById("cimol").value) || 0;
+let cireng = parseInt(document.getElementById("cireng").value) || 0;
 
-if(cimol+cireng>0){
-items.push({
-barang:"Cimol Cireng",
-jumlah:cimol+cireng,
-detail:{cimol,cireng}
-});
+if(cimol + cireng > 0){
+items.push({barang:"Cimol Cireng",jumlah:cimol+cireng,detail:{cimol,cireng}});
 }
 
-ambil("Cilok","cilok");
-ambil("Kripik Pangsit","kripik_pangsit");
-ambil("Piscok","piscok");
-ambil("Dimsum","dimsum");
-ambil("Maklor","maklor");
-ambil("Kebab","kebab");
+tambah("Cilok","cilok");
+tambah("Kripik Pangsit","kripik_pangsit");
+tambah("Piscok","piscok");
+tambah("Dimsum","dimsum");
+tambah("Maklor","maklor");
+tambah("Kebab","kebab");
+
+function tambahSlot(idBarang,idJumlah){
+let barang=document.getElementById(idBarang).value;
+let jumlah=document.getElementById(idJumlah).value;
+if(barang && jumlah && jumlah!=0){
+items.push({barang:barang,jumlah:jumlah});
+}
+}
+
+tambahSlot("slot1","slot1_jumlah");
+tambahSlot("slot2","slot2_jumlah");
 
 let data={
-waktu:new Date().toISOString(),
-tempat:tempat.value,
-jenis:jenis.value,
-items:items
+  waktu:new Date().toISOString(),
+  tempat:tempat,
+  jenis:jenis,
+  items:items
 };
 
 await db.ref("jajan").push(data);
-alert("Tersimpan");
+
+alert("Berhasil disimpan");
 location.reload();
 }
 
 function loadLaporan(){
 
 let list=document.getElementById("listLaporan");
+list.innerHTML="Loading...";
 
 db.ref("jajan").limitToLast(50).once("value",snap=>{
 
 list.innerHTML="";
 
-let data=snap.val();
-if(!data){list.innerHTML="Kosong";return;}
+if(!snap.val()){
+list.innerHTML="Belum ada data";
+return;
+}
 
-Object.values(data).reverse().forEach(d=>{
+let arr=Object.values(snap.val()).reverse();
 
-let isi=(d.items||[]).map(i=>{
+arr.forEach(d=>{
+
+let urutan = [
+"Tahu Batagor","Cilok","Cimol Cireng","Kripik Pangsit","Piscok","Dimsum","Maklor","Kebab"
+];
+
+let itemsSorted = [...(d.items || [])].sort((a,b)=>{
+return urutan.indexOf(a.barang) - urutan.indexOf(b.barang);
+});
+
+let items = itemsSorted.map(i=>{
 if(i.detail && i.barang==="Tahu Batagor"){
-return `Tahu(${i.detail.tahu}) Batagor(${i.detail.batagor})`;
+return `Tahu (${i.detail.tahu})<br>Batagor (${i.detail.batagor})`;
 }
 if(i.detail && i.barang==="Cimol Cireng"){
-return `Cimol(${i.detail.cimol}) Cireng(${i.detail.cireng})`;
+return `Cimol (${i.detail.cimol})<br>Cireng (${i.detail.cireng})`;
 }
 return `${i.barang} (${i.jumlah})`;
 }).join("<br>");
 
 let div=document.createElement("div");
 div.className="laporan-card";
+
 div.innerHTML=`
-<b>${d.jenis} - ${d.tempat}</b><br>
-${formatTanggal(d.waktu)}<br><br>
-${isi}
+<div class="laporan-header">${d.jenis} - ${d.tempat}</div>
+<div class="laporan-tanggal">${formatTanggal(d.waktu)}</div>
+<div class="laporan-items">${items}</div>
 `;
 
 list.appendChild(div);
