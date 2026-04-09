@@ -3,20 +3,114 @@
 <head>
 <title>Setting Item</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body{font-family:Arial;background:#0f172a;color:white;padding:20px}
-input,button{padding:10px;margin:5px;width:100%}
-.row{display:flex;justify-content:space-between;margin:5px 0}
+body{
+font-family:'Segoe UI',Arial;
+margin:0;
+background:linear-gradient(135deg,#0f172a,#1e3a8a);
+}
+
+.container{
+max-width:420px;
+margin:auto;
+padding:10px;
+}
+
+.card{
+background:white;
+border-radius:16px;
+padding:15px;
+box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+h2{
+text-align:center;
+color:#1e3a8a;
+}
+
+input{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #cbd5f5;
+margin-bottom:10px;
+font-size:15px;
+}
+
+button{
+padding:10px 12px;
+border:none;
+border-radius:10px;
+font-weight:700;
+cursor:pointer;
+}
+
+.btn-tambah{
+width:100%;
+background:#1e3a8a;
+color:white;
+margin-bottom:10px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #eee;
+padding:10px 0;
+}
+
+.row span{
+font-weight:700;
+}
+
+.btn-group button{
+margin-left:5px;
+}
+
+.btn-edit{
+background:#facc15;
+}
+
+.btn-hapus{
+background:#ef4444;
+color:white;
+}
+
+.btn-undo{
+width:100%;
+background:#10b981;
+color:white;
+margin-top:10px;
+}
+
+.btn-back{
+width:100%;
+background:#64748b;
+color:white;
+margin-top:10px;
+}
 </style>
 </head>
+
 <body>
 
-<h2>Setting Item</h2>
+<div class="container">
+<div class="card">
 
-<input type="text" id="itemBaru" placeholder="Nama item">
-<button onclick="tambahItem()">Tambah</button>
+<h2>⚙️ Setting Item</h2>
 
-<div id="listItem"></div>
+<input type="text" id="namaItem" placeholder="Nama item baru">
+<button class="btn-tambah" onclick="tambahItem()">+ Tambah Item</button>
+
+<div id="listItem">Loading...</div>
+
+<button class="btn-undo" onclick="undo()">↩️ Undo Hapus</button>
+<button class="btn-back" onclick="location.href='index.html'">⬅️ Kembali</button>
+
+</div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -25,44 +119,118 @@ input,button{padding:10px;margin:5px;width:100%}
 firebase.initializeApp({
 databaseURL:"https://maqshof-d5772-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
-const db=firebase.database();
 
-function tambahItem(){
-let nama=document.getElementById("itemBaru").value.trim();
-if(!nama) return alert("Isi nama");
-db.ref("items").push(nama);
-document.getElementById("itemBaru").value="";
-}
+const db = firebase.database();
 
-function load(){
-let list=document.getElementById("listItem");
+let lastDeleted = null;
+
+// 🔥 LOAD DATA
+function loadItems(){
+
+let list = document.getElementById("listItem");
+list.innerHTML = "Loading...";
 
 db.ref("items").on("value",snap=>{
-list.innerHTML="";
+
+list.innerHTML = "";
+
+if(!snap.exists()){
+list.innerHTML = "Belum ada item";
+return;
+}
+
 snap.forEach(c=>{
-let key=c.key;
-let nama=c.val();
 
-let div=document.createElement("div");
-div.className="row";
+let key = c.key;
+let nama = c.val();
 
-div.innerHTML=`
+let div = document.createElement("div");
+div.className = "row";
+
+div.innerHTML = `
 <span>${nama}</span>
-<button onclick="hapus('${key}')">Hapus</button>
+
+<div class="btn-group">
+<button class="btn-edit" onclick="editItem('${key}','${nama}')">✏️</button>
+<button class="btn-hapus" onclick="hapusItem('${key}')">🗑️</button>
+</div>
 `;
 
 list.appendChild(div);
+
 });
+
 });
 }
 
-function hapus(key){
-if(confirm("Hapus?")){
+// 🔥 TAMBAH
+function tambahItem(){
+
+let input = document.getElementById("namaItem");
+let nama = input.value.trim();
+
+if(!nama){
+alert("Isi nama item dulu");
+return;
+}
+
+db.ref("items").push(nama);
+
+input.value = "";
+
+}
+
+// 🔥 HAPUS + SIMPAN UNTUK UNDO
+function hapusItem(key){
+
+db.ref("items/"+key).once("value").then(snap=>{
+
+let nama = snap.val();
+
+if(!confirm("Yakin mau hapus '"+nama+"' ?")) return;
+
+lastDeleted = {
+key:key,
+value:nama
+};
+
 db.ref("items/"+key).remove();
-}
+
+});
+
 }
 
-load();
+// 🔥 EDIT
+function editItem(key,namaLama){
+
+let baru = prompt("Edit nama item:", namaLama);
+
+if(!baru) return;
+
+db.ref("items/"+key).set(baru);
+
+}
+
+// 🔥 UNDO
+function undo(){
+
+if(!lastDeleted){
+alert("Tidak ada yang bisa di-undo");
+return;
+}
+
+db.ref("items/"+lastDeleted.key).set(lastDeleted.value);
+
+lastDeleted = null;
+
+alert("Berhasil dikembalikan");
+
+}
+
+// 🔥 INIT
+window.onload = function(){
+loadItems();
+}
 </script>
 
 </body>
