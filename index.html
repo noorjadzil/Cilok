@@ -202,9 +202,11 @@ font-weight:600;
 <div class="row">
 <select id="slot1">
 <option value="">-- Pilih --</option>
-<option>Tahu Batagor</option>
+<option>Tahu</option>
+<option>Batagor</option>
 <option>Cilok</option>
-<option>Cimol Cireng</option>
+<option>Cimol</option>
+<option>Cireng</option>
 <option>Kripik Pangsit</option>
 <option>Piscok</option>
 <option>Dimsum</option>
@@ -216,9 +218,11 @@ font-weight:600;
 <div class="row">
 <select id="slot2">
 <option value="">-- Pilih --</option>
-<option>Tahu Batagor</option>
+<option>Tahu</option>
+<option>Batagor</option>
 <option>Cilok</option>
-<option>Cimol Cireng</option>
+<option>Cimol</option>
+<option>Cireng</option>
 <option>Kripik Pangsit</option>
 <option>Piscok</option>
 <option>Dimsum</option>
@@ -320,32 +324,13 @@ if(val && val!=0){
 items.push({barang:nama,jumlah:val});
 }
 }
-// 🔥 TAHU + BATAGOR
-let tahu = parseInt(document.getElementById("tahu").value) || 0;
-let batagor = parseInt(document.getElementById("batagor").value) || 0;
-
-if(tahu + batagor > 0){
-items.push({
-  barang:"Tahu Batagor",
-  jumlah: tahu + batagor,
-  detail:{tahu, batagor}
-});
-}
-
-// 🔥 CIMOL + CIRENG
-let cimol = parseInt(document.getElementById("cimol").value) || 0;
-let cireng = parseInt(document.getElementById("cireng").value) || 0;
-
-if(cimol + cireng > 0){
-items.push({
-  barang:"Cimol Cireng",
-  jumlah: cimol + cireng,
-  detail:{cimol, cireng}
-});
-}
 
 // ITEM LAIN
+tambah("Tahu","tahu");
+tambah("Batagor","batagor");
 tambah("Cilok","cilok");
+tambah("Cimol","cimol");
+tambah("Cireng","cireng");
 tambah("Kripik Pangsit","kripik_pangsit");
 tambah("Piscok","piscok");
 tambah("Dimsum","dimsum");
@@ -411,7 +396,8 @@ let arr=Object.values(snap.val()).reverse();
 arr.forEach(d=>{
 
 let urutan = [
-"Tahu Batagor","Cilok","Cimol Cireng","Kripik Pangsit","Piscok","Dimsum","Maklor","Kebab"
+"Tahu","Batagor","Cilok","Cimol","Cireng",
+"Kripik Pangsit","Piscok","Dimsum","Maklor","Kebab"
 ];
 
 let itemsSorted = [...(d.items || [])].sort((a,b)=>{
@@ -419,12 +405,6 @@ return urutan.indexOf(a.barang) - urutan.indexOf(b.barang);
 });
 
 let items = itemsSorted.map(i=>{
-if(i.detail && i.barang==="Tahu Batagor"){
-return `Tahu (${i.detail.tahu})<br>Batagor (${i.detail.batagor})`;
-}
-if(i.detail && i.barang==="Cimol Cireng"){
-return `Cimol (${i.detail.cimol})<br>Cireng (${i.detail.cireng})`;
-}
 return `${i.barang} (${i.jumlah})`;
 }).join("<br>");
 
