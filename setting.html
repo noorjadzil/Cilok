@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Setting Item</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial;background:#0f172a;color:white;padding:20px}
+input,button{padding:10px;margin:5px;width:100%}
+.row{display:flex;justify-content:space-between;margin:5px 0}
+</style>
+</head>
+<body>
+
+<h2>Setting Item</h2>
+
+<input type="text" id="itemBaru" placeholder="Nama item">
+<button onclick="tambahItem()">Tambah</button>
+
+<div id="listItem"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+databaseURL:"https://maqshof-d5772-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+const db=firebase.database();
+
+function tambahItem(){
+let nama=document.getElementById("itemBaru").value.trim();
+if(!nama) return alert("Isi nama");
+db.ref("items").push(nama);
+document.getElementById("itemBaru").value="";
+}
+
+function load(){
+let list=document.getElementById("listItem");
+
+db.ref("items").on("value",snap=>{
+list.innerHTML="";
+snap.forEach(c=>{
+let key=c.key;
+let nama=c.val();
+
+let div=document.createElement("div");
+div.className="row";
+
+div.innerHTML=`
+<span>${nama}</span>
+<button onclick="hapus('${key}')">Hapus</button>
+`;
+
+list.appendChild(div);
+});
+});
+}
+
+function hapus(key){
+if(confirm("Hapus?")){
+db.ref("items/"+key).remove();
+}
+}
+
+load();
+</script>
+
+</body>
+</html>
