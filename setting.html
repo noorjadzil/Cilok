@@ -5,6 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
+.input-group{
+display:flex;
+gap:8px;
+margin-bottom:10px;
+}
+
+.input-group input{
+flex:1;
+padding:12px;
+border-radius:10px;
+border:1px solid #cbd5f5;
+font-size:15px;
+}
+
+.input-group button{
+width:50px;
+border-radius:10px;
+background:#1e3a8a;
+color:white;
+font-size:20px;
+font-weight:700;
+}
 body{
 font-family:'Segoe UI',Arial;
 margin:0;
@@ -135,8 +157,9 @@ font-weight:600;
 <div class="header">
 <h2>⚙️ Setting Item</h2>
 
-<input type="text" id="namaItem" placeholder="Tambah item baru...">
-<button class="btn btn-tambah" onclick="tambahItem()">+ Tambah Item</button>
+<div class="input-group">
+<input type="text" id="namaItem" placeholder="Tambah item...">
+<button class="btn-tambah" onclick="tambahItem()">+</button>
 </div>
 
 <div id="listItem"></div>
