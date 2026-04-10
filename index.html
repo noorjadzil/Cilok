@@ -112,17 +112,21 @@ border:1px solid #cbd5f5;
 <option>Akhwat</option>
 </select>
 
-<!-- 🔥 SEMUA ITEM -->
+<!-- ITEM DINAMIS -->
 <div id="dynamicItems"></div>
 
-<!-- 🔥 SLOT -->
+<!-- SLOT -->
 <div class="row">
-<select id="slot1"></select>
+<select id="slot1">
+<option value="">-- Pilih --</option>
+</select>
 <input type="number" id="slot1_jumlah">
 </div>
 
 <div class="row">
-<select id="slot2"></select>
+<select id="slot2">
+<option value="">-- Pilih --</option>
+</select>
 <input type="number" id="slot2_jumlah">
 </div>
 
@@ -154,16 +158,13 @@ e.target.classList.add("active");
 if(tab==="laporan") loadLaporan();
 }
 
-// 🔥 LOAD ITEM
+// LOAD ITEM
 function loadItems(){
-
 let container = document.getElementById("dynamicItems");
 container.innerHTML="";
 
 db.ref("items").once("value",snap=>{
-
 snap.forEach(c=>{
-
 let nama = c.val();
 
 let div = document.createElement("div");
@@ -175,16 +176,12 @@ div.innerHTML = `
 `;
 
 container.appendChild(div);
-
 });
-
 });
-
 }
 
-// 🔥 DROPDOWN
+// LOAD DROPDOWN
 function loadDropdownItems(){
-
 let slot1 = document.getElementById("slot1");
 let slot2 = document.getElementById("slot2");
 
@@ -192,9 +189,7 @@ slot1.innerHTML = `<option value="">-- Pilih --</option>`;
 slot2.innerHTML = `<option value="">-- Pilih --</option>`;
 
 db.ref("items").once("value",snap=>{
-
 snap.forEach(c=>{
-
 let nama = c.val();
 
 let opt1 = document.createElement("option");
@@ -205,18 +200,16 @@ let opt2 = opt1.cloneNode(true);
 
 slot1.appendChild(opt1);
 slot2.appendChild(opt2);
-
 });
-
 });
-
 }
 
-// 🔥 SIMPAN
+// SIMPAN
 async function kirim(){
 
 let items=[];
 
+// item utama
 document.querySelectorAll("#dynamicItems input").forEach(input=>{
 let val = input.value;
 if(val && val!=0){
@@ -240,6 +233,7 @@ items.push({barang:barang,jumlah:jumlah});
 tambahSlot("slot1","slot1_jumlah");
 tambahSlot("slot2","slot2_jumlah");
 
+// kirim
 let data={
 waktu:new Date().toISOString(),
 tempat:document.getElementById("tempat").value,
@@ -254,7 +248,7 @@ alert("Berhasil");
 location.reload();
 }
 
-// 🔥 LAPORAN
+// LAPORAN
 function loadLaporan(){
 
 let list=document.getElementById("listLaporan");
@@ -284,7 +278,6 @@ list.appendChild(div);
 });
 
 });
-
 }
 
 </script>
