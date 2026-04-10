@@ -121,7 +121,7 @@ resize:none;
 
 <div class="tabs">
 <button class="tab-btn active" onclick="showTab('input',event)">Input</button>
-<button class="tab-btn" onclick="showTab('laporan',event)">Laporan</button>
+
 </div>
 
 <div class="card">
@@ -164,14 +164,11 @@ resize:none;
 <textarea id="catatan"></textarea>
 
 <button onclick="kirim()">Simpan</button>
+<button onclick="location.href='laporan.html'">📊 Lihat Laporan</button>
 <button onclick="location.href='setting.html'">⚙️ Setting</button>
 
 </div>
 
-<div id="laporanTab" style="display:none">
-<h2>Laporan</h2>
-<div id="listLaporan">Loading...</div>
-</div>
 
 </div>
 </div>
@@ -179,11 +176,9 @@ resize:none;
 <script>
 
 function showTab(tab,e){
-document.getElementById("inputTab").style.display = tab==="input"?"block":"none";
-document.getElementById("laporanTab").style.display = tab==="laporan"?"block":"none";
+document.getElementById("inputTab").style.display = "block";
 document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
 e.target.classList.add("active");
-if(tab==="laporan") loadLaporan();
 }
 
 // 🔥 LOAD ITEM
@@ -269,7 +264,7 @@ fotoBase64=await kompresGambar(f);
 }
 
 let data={
-waktu:new Date().toISOString(),
+waktu:new Date().toLocaleString("id-ID"),
 tempat:document.getElementById("tempat").value,
 jenis:document.getElementById("jenis").value,
 items:items,
@@ -300,33 +295,6 @@ resolve(canvas.toDataURL("image/jpeg",0.5));
 };
 };
 reader.readAsDataURL(file);
-});
-}
-
-// 🔥 LAPORAN
-function loadLaporan(){
-let list=document.getElementById("listLaporan");
-
-db.ref("jajan").limitToLast(50).on("value",snap=>{
-list.innerHTML="";
-
-let arr=Object.values(snap.val()||{}).reverse();
-
-arr.forEach(d=>{
-let items=(d.items||[]).map(i=>`${i.barang} (${i.jumlah})`).join("<br>");
-
-let div=document.createElement("div");
-div.className="laporan-card";
-
-div.innerHTML=`
-<b>${d.jenis} - ${d.tempat}</b><br>
-${items}
-${d.catatan ? `<br><b>Catatan:</b> ${d.catatan}`:""}
-${d.foto ? `<img src="${d.foto}">`:""}
-`;
-
-list.appendChild(div);
-});
 });
 }
 
