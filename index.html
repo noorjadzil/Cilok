@@ -51,6 +51,27 @@ text-align:center;
 color:#1e3a8a;
 }
 
+label{
+font-weight:700;
+font-size:13px;
+margin-top:8px;
+display:block;
+}
+
+select,input[type="number"]{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:1px solid #cbd5f5;
+margin-bottom:10px;
+font-weight:600;
+}
+
+input[type="number"]{
+text-align:center;
+font-size:16px;
+}
+
 .row{
 display:flex;
 justify-content:space-between;
@@ -74,12 +95,22 @@ font-weight:700;
 margin-top:15px;
 }
 
+img{
+width:100%;
+border-radius:10px;
+margin-top:8px;
+}
+
 #catatan{
 width:100%;
 padding:12px;
 margin-top:6px;
 border-radius:10px;
 border:1px solid #cbd5f5;
+font-size:15px;
+font-weight:600;
+box-sizing:border-box;
+resize:none;
 }
 </style>
 </head>
@@ -95,10 +126,13 @@ border:1px solid #cbd5f5;
 
 <div class="card">
 
-<!-- INPUT -->
 <div id="inputTab">
 
 <h2>Input Jajan</h2>
+
+<label>Foto</label>
+<input type="file" id="foto" accept="image/*">
+<img id="preview" style="display:none">
 
 <label>Jenis</label>
 <select id="jenis">
@@ -112,32 +146,28 @@ border:1px solid #cbd5f5;
 <option>Akhwat</option>
 </select>
 
-<!-- ITEM DINAMIS -->
+<!-- 🔥 ITEM DARI SETTING -->
 <div id="dynamicItems"></div>
 
 <!-- SLOT -->
 <div class="row">
-<select id="slot1">
-<option value="">-- Pilih --</option>
-</select>
+<select id="slot1"><option value="">-- Pilih --</option></select>
 <input type="number" id="slot1_jumlah">
 </div>
 
 <div class="row">
-<select id="slot2">
-<option value="">-- Pilih --</option>
-</select>
+<select id="slot2"><option value="">-- Pilih --</option></select>
 <input type="number" id="slot2_jumlah">
 </div>
 
-<textarea id="catatan" placeholder="Catatan..."></textarea>
+<label>Catatan</label>
+<textarea id="catatan"></textarea>
 
 <button onclick="kirim()">Simpan</button>
 <button onclick="location.href='setting.html'">⚙️ Setting</button>
 
 </div>
 
-<!-- LAPORAN -->
 <div id="laporanTab" style="display:none">
 <h2>Laporan</h2>
 <div id="listLaporan">Loading...</div>
@@ -151,26 +181,24 @@ border:1px solid #cbd5f5;
 function showTab(tab,e){
 document.getElementById("inputTab").style.display = tab==="input"?"block":"none";
 document.getElementById("laporanTab").style.display = tab==="laporan"?"block":"none";
-
 document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
 e.target.classList.add("active");
-
 if(tab==="laporan") loadLaporan();
 }
 
-// LOAD ITEM
+// 🔥 LOAD ITEM
 function loadItems(){
-let container = document.getElementById("dynamicItems");
+let container=document.getElementById("dynamicItems");
 container.innerHTML="";
 
 db.ref("items").once("value",snap=>{
 snap.forEach(c=>{
-let nama = c.val();
+let nama=c.val();
 
-let div = document.createElement("div");
+let div=document.createElement("div");
 div.className="row";
 
-div.innerHTML = `
+div.innerHTML=`
 <span>${nama}</span>
 <input type="number" data-nama="${nama}">
 `;
@@ -180,23 +208,23 @@ container.appendChild(div);
 });
 }
 
-// LOAD DROPDOWN
+// 🔥 DROPDOWN
 function loadDropdownItems(){
-let slot1 = document.getElementById("slot1");
-let slot2 = document.getElementById("slot2");
+let slot1=document.getElementById("slot1");
+let slot2=document.getElementById("slot2");
 
-slot1.innerHTML = `<option value="">-- Pilih --</option>`;
-slot2.innerHTML = `<option value="">-- Pilih --</option>`;
+slot1.innerHTML='<option value="">-- Pilih --</option>';
+slot2.innerHTML='<option value="">-- Pilih --</option>';
 
 db.ref("items").once("value",snap=>{
 snap.forEach(c=>{
-let nama = c.val();
+let nama=c.val();
 
-let opt1 = document.createElement("option");
-opt1.value = nama;
-opt1.textContent = nama;
+let opt1=document.createElement("option");
+opt1.value=nama;
+opt1.textContent=nama;
 
-let opt2 = opt1.cloneNode(true);
+let opt2=opt1.cloneNode(true);
 
 slot1.appendChild(opt1);
 slot2.appendChild(opt2);
@@ -204,18 +232,18 @@ slot2.appendChild(opt2);
 });
 }
 
-// SIMPAN
+// 🔥 SIMPAN
 async function kirim(){
 
 let items=[];
 
 // item utama
 document.querySelectorAll("#dynamicItems input").forEach(input=>{
-let val = input.value;
+let val=input.value;
 if(val && val!=0){
 items.push({
-barang: input.dataset.nama,
-jumlah: val
+barang:input.dataset.nama,
+jumlah:val
 });
 }
 });
@@ -233,50 +261,72 @@ items.push({barang:barang,jumlah:jumlah});
 tambahSlot("slot1","slot1_jumlah");
 tambahSlot("slot2","slot2_jumlah");
 
-// kirim
+// foto
+let fotoBase64="";
+let f=document.getElementById("foto").files[0];
+if(f){
+fotoBase64=await kompresGambar(f);
+}
+
 let data={
 waktu:new Date().toISOString(),
 tempat:document.getElementById("tempat").value,
 jenis:document.getElementById("jenis").value,
 items:items,
-catatan:document.getElementById("catatan").value
+catatan:document.getElementById("catatan").value,
+foto:fotoBase64
 };
 
 await db.ref("jajan").push(data);
-
 alert("Berhasil");
 location.reload();
 }
 
-// LAPORAN
-function loadLaporan(){
+// 🔥 KOMPRES FOTO
+function kompresGambar(file){
+return new Promise(resolve=>{
+let reader=new FileReader();
+reader.onload=e=>{
+let img=new Image();
+img.src=e.target.result;
+img.onload=()=>{
+let canvas=document.createElement("canvas");
+let scale=400/img.width;
+canvas.width=400;
+canvas.height=img.height*scale;
+let ctx=canvas.getContext("2d");
+ctx.drawImage(img,0,0,canvas.width,canvas.height);
+resolve(canvas.toDataURL("image/jpeg",0.5));
+};
+};
+reader.readAsDataURL(file);
+});
+}
 
+// 🔥 LAPORAN
+function loadLaporan(){
 let list=document.getElementById("listLaporan");
 
 db.ref("jajan").limitToLast(50).on("value",snap=>{
-
 list.innerHTML="";
 
 let arr=Object.values(snap.val()||{}).reverse();
 
 arr.forEach(d=>{
-
-let items = (d.items||[]).map(i=>{
-return `${i.barang} (${i.jumlah})`;
-}).join("<br>");
+let items=(d.items||[]).map(i=>`${i.barang} (${i.jumlah})`).join("<br>");
 
 let div=document.createElement("div");
-div.className="row";
+div.className="laporan-card";
 
 div.innerHTML=`
 <b>${d.jenis} - ${d.tempat}</b><br>
 ${items}
+${d.catatan ? `<br><b>Catatan:</b> ${d.catatan}`:""}
+${d.foto ? `<img src="${d.foto}">`:""}
 `;
 
 list.appendChild(div);
-
 });
-
 });
 }
 
@@ -291,7 +341,7 @@ databaseURL:"https://maqshof-d5772-default-rtdb.asia-southeast1.firebasedatabase
 });
 const db=firebase.database();
 
-window.onload = function(){
+window.onload=function(){
 loadItems();
 loadDropdownItems();
 }
