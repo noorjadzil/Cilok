@@ -61,6 +61,11 @@ color:#1e3a8a;
 margin:5px 0 10px;
 }
 
+h3{
+margin-top:15px;
+color:#1e3a8a;
+}
+
 input{
 width:100%;
 padding:14px;
@@ -149,7 +154,11 @@ font-weight:600;
 <div class="card">
 
 <div class="header">
-<h2>⚙️ Setting Item</h2>
+
+<h2>⚙️ Setting</h2>
+
+<!-- 🔥 SETTING ITEM -->
+<h3>📦 Setting Item</h3>
 
 <div class="input-group">
 <input type="text" id="namaItem" placeholder="Tambah item...">
@@ -158,8 +167,18 @@ font-weight:600;
 
 <div id="listItem"></div>
 
-<button class="btn btn-undo" onclick="undo()">↩️ Undo Hapus</button>
-<button class="btn btn-back" onclick="kembali()">⬅️ Kembali ke Input</button>
+<!-- 🔥 SETTING WA -->
+<h3>📱 Setting WhatsApp</h3>
+
+<div class="input-group">
+<input type="number" id="nomorWA" placeholder="Contoh: 628xxxx">
+<button class="btn-tambah" onclick="tambahWA()">+</button>
+</div>
+
+<div id="listWA"></div>
+
+<button class="btn btn-undo" onclick="undo()">↩️ Undo Hapus Item</button>
+<button class="btn btn-back" onclick="kembali()">⬅️ Kembali</button>
 
 </div>
 </div>
@@ -169,7 +188,7 @@ font-weight:600;
 
 <script>
 
-// 🔥 FIREBASE SAMA DENGAN INDEX
+// 🔥 FIREBASE (SAMA DENGAN INDEX)
 const firebaseConfig={
 apiKey:"AIzaSyAIEhd42LiAEu7CzsnTXubQdxH1dzu1nyQ",
 authDomain:"cilok-86ced.firebaseapp.com",
@@ -185,7 +204,9 @@ const db = firebase.database();
 
 let lastDeleted = null;
 
-// 🔥 LOAD
+// ================= ITEM =================
+
+// LOAD ITEM
 function loadItems(){
 
 let list = document.getElementById("listItem");
@@ -210,7 +231,6 @@ div.className = "row";
 
 div.innerHTML = `
 <span>${nama}</span>
-
 <div class="btn-group">
 <button class="btn-edit" onclick="editItem('${key}','${nama}')">✏️</button>
 <button class="btn-hapus" onclick="hapusItem('${key}')">🗑️</button>
@@ -224,7 +244,7 @@ list.appendChild(div);
 });
 }
 
-// 🔥 TAMBAH + RAPIIKAN NAMA
+// TAMBAH ITEM
 function tambahItem(){
 
 let input = document.getElementById("namaItem");
@@ -243,10 +263,9 @@ nama = nama.toLowerCase()
 
 db.ref("items").push(nama);
 input.value = "";
-
 }
 
-// 🔥 HAPUS
+// HAPUS ITEM
 function hapusItem(key){
 
 db.ref("items/"+key).once("value").then(snap=>{
@@ -255,10 +274,7 @@ let nama = snap.val();
 
 if(!confirm("Hapus '"+nama+"' ?")) return;
 
-lastDeleted = {
-key:key,
-value:nama
-};
+lastDeleted = {key:key,value:nama};
 
 db.ref("items/"+key).remove();
 
@@ -266,24 +282,21 @@ db.ref("items/"+key).remove();
 
 }
 
-// 🔥 EDIT
+// EDIT ITEM
 function editItem(key,namaLama){
 
 let baru = prompt("Edit nama item:", namaLama);
-
 if(!baru) return;
 
-// rapikan juga saat edit
 baru = baru.toLowerCase()
 .split(" ")
 .map(k => k.charAt(0).toUpperCase() + k.slice(1))
 .join(" ");
 
 db.ref("items/"+key).set(baru);
-
 }
 
-// 🔥 UNDO
+// UNDO
 function undo(){
 
 if(!lastDeleted){
@@ -292,20 +305,96 @@ return;
 }
 
 db.ref("items/"+lastDeleted.key).set(lastDeleted.value);
-
 lastDeleted = null;
 
 alert("Dikembalikan 👍");
-
 }
 
-// 🔥 KEMBALI
+// ================= WA =================
+
+// LOAD WA
+function loadWA(){
+
+let list = document.getElementById("listWA");
+list.innerHTML = "Loading...";
+
+db.ref("config/wa").on("value",snap=>{
+
+list.innerHTML = "";
+
+let data = snap.val() || {};
+let keys = Object.keys(data);
+
+if(keys.length === 0){
+list.innerHTML = "<div class='empty'>Belum ada nomor</div>";
+return;
+}
+
+keys.forEach(k=>{
+
+let nomor = data[k];
+
+let div=document.createElement("div");
+div.className="row";
+
+div.innerHTML=`
+<span>${nomor}</span>
+<button class="btn-hapus" onclick="hapusWA('${k}')">🗑️</button>
+`;
+
+list.appendChild(div);
+
+});
+
+});
+}
+
+// TAMBAH WA
+function tambahWA(){
+
+let input = document.getElementById("nomorWA");
+let nomor = input.value.trim();
+
+if(!nomor){
+alert("Isi nomor dulu");
+return;
+}
+
+db.ref("config/wa").once("value",snap=>{
+
+let data = snap.val() || {};
+let total = Object.keys(data).length;
+
+if(total >= 4){
+alert("Maksimal 4 nomor WA");
+return;
+}
+
+let index = total + 1;
+db.ref("config/wa/wa"+index).set(nomor);
+
+input.value = "";
+
+});
+}
+
+// HAPUS WA
+function hapusWA(key){
+if(!confirm("Hapus nomor ini?")) return;
+db.ref("config/wa/"+key).remove();
+}
+
+// ================= NAVIGASI =================
+
 function kembali(){
 window.location.href = "index.html";
 }
 
 // INIT
-window.onload = loadItems;
+window.onload = function(){
+loadItems();
+loadWA();
+};
 
 </script>
 
