@@ -1,401 +1,110 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Setting Item</title>
+<title>Setting</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-.input-group{
-display:flex;
-gap:8px;
-margin-bottom:10px;
-}
-
-.input-group input{
-flex:1;
-padding:12px;
-border-radius:10px;
-border:1px solid #cbd5f5;
-font-size:15px;
-}
-
-.input-group button{
-width:50px;
-border-radius:10px;
-background:#1e3a8a;
-color:white;
-font-size:20px;
-font-weight:700;
-}
-
 body{
-font-family:'Segoe UI',Arial;
+font-family:Segoe UI;
+background:#0f172a;
 margin:0;
-background:linear-gradient(135deg,#0f172a,#1e3a8a);
+color:white;
 }
 
-.container{
-max-width:420px;
+.box{
+max-width:400px;
 margin:auto;
-padding:10px;
+padding:15px;
 }
 
 .card{
 background:white;
-border-radius:16px;
+color:black;
 padding:15px;
-box-shadow:0 8px 20px rgba(0,0,0,0.2);
-}
-
-.header{
-position:sticky;
-top:0;
-background:white;
-padding-bottom:10px;
-z-index:10;
-}
-
-h2{
-text-align:center;
-color:#1e3a8a;
-margin:5px 0 10px;
-}
-
-h3{
-margin-top:15px;
-color:#1e3a8a;
+border-radius:16px;
 }
 
 input{
 width:100%;
-padding:14px;
-border-radius:12px;
-border:1px solid #cbd5f5;
-margin-bottom:10px;
-font-size:16px;
+padding:10px;
+margin-top:8px;
+border-radius:10px;
+border:1px solid #ccc;
 }
 
 button{
-border:none;
-border-radius:12px;
-font-weight:700;
-cursor:pointer;
-}
-
-.btn{
 width:100%;
-padding:14px;
-font-size:16px;
-}
-
-.btn-tambah{
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
 background:#1e3a8a;
 color:white;
-}
-
-.btn-undo{
-background:#10b981;
-color:white;
-margin-top:10px;
-}
-
-.btn-back{
-background:#64748b;
-color:white;
-margin-top:10px;
-}
-
-.row{
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:1px solid #eee;
-padding:12px 0;
-}
-
-.row span{
 font-weight:700;
-font-size:15px;
-}
-
-.btn-group{
-display:flex;
-gap:8px;
-}
-
-.btn-edit{
-background:#facc15;
-padding:10px;
-}
-
-.btn-hapus{
-background:#ef4444;
-color:white;
-padding:10px;
-}
-
-.btn-edit, .btn-hapus{
-min-width:45px;
-font-size:16px;
-}
-
-.empty{
-text-align:center;
-color:#64748b;
-margin-top:10px;
-font-weight:600;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="box">
 <div class="card">
 
-<div class="header">
+<h2>Setting WA</h2>
 
-<h2>⚙️ Setting</h2>
+<input id="wa1" placeholder="WA 1 (628xxx)">
+<input id="wa2" placeholder="WA 2">
+<input id="wa3" placeholder="WA 3">
+<input id="wa4" placeholder="WA 4">
 
-<!-- 🔥 SETTING ITEM -->
-<h3>📦 Setting Item</h3>
-
-<div class="input-group">
-<input type="text" id="namaItem" placeholder="Tambah item...">
-<button class="btn-tambah" onclick="tambahItem()">+</button>
-</div>
-
-<div id="listItem"></div>
-
-<!-- 🔥 SETTING WA -->
-<h3>📱 Setting WhatsApp</h3>
-
-<div class="input-group">
-<input type="number" id="nomorWA" placeholder="Contoh: 628xxxx">
-<button class="btn-tambah" onclick="tambahWA()">+</button>
-</div>
-
-<div id="listWA"></div>
-
-<button class="btn btn-undo" onclick="undo()">↩️ Undo Hapus Item</button>
-<button class="btn btn-back" onclick="kembali()">⬅️ Kembali</button>
+<button onclick="save()">Simpan</button>
 
 </div>
 </div>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <script>
+let db;
 
-// 🔥 FIREBASE (SAMA DENGAN INDEX)
-const firebaseConfig={
-apiKey:"AIzaSyAIEhd42LiAEu7CzsnTXubQdxH1dzu1nyQ",
-authDomain:"cilok-86ced.firebaseapp.com",
-databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId:"cilok-86ced",
-storageBucket:"cilok-86ced.firebasestorage.app",
-messagingSenderId:"1038629771281",
-appId:"1:1038629771281:web:45d56ba73acaf6613a79b0"
+let req=indexedDB.open("JajanDB",1);
+
+req.onsuccess=function(e){
+db=e.target.result;
+load();
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-let lastDeleted = null;
-
-// ================= ITEM =================
-
-// LOAD ITEM
-function loadItems(){
-
-let list = document.getElementById("listItem");
-list.innerHTML = "Loading...";
-
-db.ref("items").on("value",snap=>{
-
-list.innerHTML = "";
-
-if(!snap.exists()){
-list.innerHTML = "<div class='empty'>Belum ada item</div>";
-return;
+function tx(store,mode="readwrite"){
+return db.transaction(store,mode).objectStore(store);
 }
 
-snap.forEach(c=>{
+function load(){
+let r=tx("config").get("wa");
 
-let key = c.key;
-let nama = c.val();
+r.onsuccess=function(){
+let data=r.result?.value || [];
 
-let div = document.createElement("div");
-div.className = "row";
-
-div.innerHTML = `
-<span>${nama}</span>
-<div class="btn-group">
-<button class="btn-edit" onclick="editItem('${key}','${nama}')">✏️</button>
-<button class="btn-hapus" onclick="hapusItem('${key}')">🗑️</button>
-</div>
-`;
-
-list.appendChild(div);
-
-});
-
-});
+for(let i=0;i<4;i++){
+document.getElementById("wa"+(i+1)).value=data[i] || "";
 }
-
-// TAMBAH ITEM
-function tambahItem(){
-
-let input = document.getElementById("namaItem");
-let nama = input.value.trim();
-
-if(!nama){
-alert("Isi nama item dulu");
-return;
-}
-
-// rapikan huruf
-nama = nama.toLowerCase()
-.split(" ")
-.map(k => k.charAt(0).toUpperCase() + k.slice(1))
-.join(" ");
-
-db.ref("items").push(nama);
-input.value = "";
-}
-
-// HAPUS ITEM
-function hapusItem(key){
-
-db.ref("items/"+key).once("value").then(snap=>{
-
-let nama = snap.val();
-
-if(!confirm("Hapus '"+nama+"' ?")) return;
-
-lastDeleted = {key:key,value:nama};
-
-db.ref("items/"+key).remove();
-
-});
-
-}
-
-// EDIT ITEM
-function editItem(key,namaLama){
-
-let baru = prompt("Edit nama item:", namaLama);
-if(!baru) return;
-
-baru = baru.toLowerCase()
-.split(" ")
-.map(k => k.charAt(0).toUpperCase() + k.slice(1))
-.join(" ");
-
-db.ref("items/"+key).set(baru);
-}
-
-// UNDO
-function undo(){
-
-if(!lastDeleted){
-alert("Tidak ada yang bisa di-undo");
-return;
-}
-
-db.ref("items/"+lastDeleted.key).set(lastDeleted.value);
-lastDeleted = null;
-
-alert("Dikembalikan 👍");
-}
-
-// ================= WA =================
-
-// LOAD WA
-function loadWA(){
-
-let list = document.getElementById("listWA");
-list.innerHTML = "Loading...";
-
-db.ref("config/wa").on("value",snap=>{
-
-list.innerHTML = "";
-
-let data = snap.val() || {};
-let keys = Object.keys(data);
-
-if(keys.length === 0){
-list.innerHTML = "<div class='empty'>Belum ada nomor</div>";
-return;
-}
-
-keys.forEach(k=>{
-
-let nomor = data[k];
-
-let div=document.createElement("div");
-div.className="row";
-
-div.innerHTML=`
-<span>${nomor}</span>
-<button class="btn-hapus" onclick="hapusWA('${k}')">🗑️</button>
-`;
-
-list.appendChild(div);
-
-});
-
-});
-}
-
-// TAMBAH WA
-function tambahWA(){
-
-let input = document.getElementById("nomorWA");
-let nomor = input.value.trim();
-
-if(!nomor){
-alert("Isi nomor dulu");
-return;
-}
-
-db.ref("config/wa").once("value",snap=>{
-
-let data = snap.val() || {};
-let total = Object.keys(data).length;
-
-if(total >= 4){
-alert("Maksimal 4 nomor WA");
-return;
-}
-
-let index = total + 1;
-db.ref("config/wa/wa"+index).set(nomor);
-
-input.value = "";
-
-});
-}
-
-// HAPUS WA
-function hapusWA(key){
-if(!confirm("Hapus nomor ini?")) return;
-db.ref("config/wa/"+key).remove();
-}
-
-// ================= NAVIGASI =================
-
-function kembali(){
-window.location.href = "index.html";
-}
-
-// INIT
-window.onload = function(){
-loadItems();
-loadWA();
 };
+}
 
+function save(){
+let arr=[];
+
+for(let i=1;i<=4;i++){
+let v=document.getElementById("wa"+i).value;
+if(v) arr.push(v);
+}
+
+tx("config","readwrite").put({
+key:"wa",
+value:arr
+});
+
+alert("Tersimpan!");
+location.href="index.html";
+}
 </script>
 
 </body>
