@@ -50,8 +50,8 @@ box-sizing:border-box;
 .row{
 display:flex;
 gap:10px;
-align-items:center;
 margin-top:8px;
+align-items:center;
 }
 
 .row input, .row select{
@@ -67,14 +67,13 @@ background:#1e3a8a;
 color:white;
 font-weight:700;
 margin-top:10px;
-cursor:pointer;
 }
 
 .item-box{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:8px 0;
+padding:6px 0;
 border-bottom:1px solid #eee;
 }
 
@@ -89,7 +88,7 @@ color:gray;
 <div class="container">
 <div class="card">
 
-<h2 id="judul">Input Jajan</h2>
+<h2>Input Jajan</h2>
 
 <label>Foto</label>
 <input type="file" id="foto" accept="image/*">
@@ -121,40 +120,36 @@ color:gray;
 <label>Catatan</label>
 <textarea id="catatan"></textarea>
 
-<label>WA Tujuan</label>
+<label>Pilih WA</label>
 <div id="waList"></div>
 
-<button onclick="simpan()">Simpan</button>
-<button onclick="location.href='laporan.html'">Laporan</button>
+<button onclick="simpan()">💾 Simpan</button>
+<button onclick="location.href='setting.html'">⚙️ Setting</button>
 
 </div>
 </div>
 
 <script>
 /* =========================
-   INDEXEDDB SETUP
+   INDEXEDDB
 ========================= */
 let db;
 
-let request = indexedDB.open("JajanDB", 1);
+let req = indexedDB.open("JajanDB",1);
 
-request.onupgradeneeded = function(e){
+req.onupgradeneeded = function(e){
 db = e.target.result;
 
-db.createObjectStore("items", {keyPath:"id", autoIncrement:true});
-db.createObjectStore("jajan", {keyPath:"id", autoIncrement:true});
-db.createObjectStore("config", {keyPath:"key"});
+db.createObjectStore("items",{keyPath:"id",autoIncrement:true});
+db.createObjectStore("jajan",{keyPath:"id",autoIncrement:true});
+db.createObjectStore("config",{keyPath:"key"});
 };
 
-request.onsuccess = function(e){
+req.onsuccess = function(e){
 db = e.target.result;
-
 loadAll();
 };
 
-/* =========================
-   HELPER DB
-========================= */
 function tx(store,mode="readonly"){
 return db.transaction(store,mode).objectStore(store);
 }
@@ -163,22 +158,22 @@ return db.transaction(store,mode).objectStore(store);
    LOAD ITEMS
 ========================= */
 function loadItems(){
-let container = document.getElementById("dynamicItems");
-container.innerHTML="";
+let box=document.getElementById("dynamicItems");
+box.innerHTML="";
 
-let req = tx("items").getAll();
+let r = tx("items").getAll();
 
-req.onsuccess = function(){
-req.result.forEach(item=>{
-let div = document.createElement("div");
+r.onsuccess=function(){
+r.result.forEach(i=>{
+let div=document.createElement("div");
 div.className="item-box";
 
 div.innerHTML=`
-<span>${item.nama}</span>
-<input type="number" data-nama="${item.nama}">
+<span>${i.nama}</span>
+<input type="number" data-nama="${i.nama}">
 `;
 
-container.appendChild(div);
+box.appendChild(div);
 });
 };
 }
@@ -193,13 +188,13 @@ let s2=document.getElementById("slot2");
 s1.innerHTML="";
 s2.innerHTML="";
 
-let req = tx("items").getAll();
+let r = tx("items").getAll();
 
-req.onsuccess = function(){
-req.result.forEach(item=>{
+r.onsuccess=function(){
+r.result.forEach(i=>{
 let opt=document.createElement("option");
-opt.value=item.nama;
-opt.textContent=item.nama;
+opt.value=i.nama;
+opt.textContent=i.nama;
 
 s1.appendChild(opt.cloneNode(true));
 s2.appendChild(opt.cloneNode(true));
@@ -208,16 +203,16 @@ s2.appendChild(opt.cloneNode(true));
 }
 
 /* =========================
-   WA LIST LOCAL CONFIG
+   WA LIST
 ========================= */
 function loadWA(){
 let box=document.getElementById("waList");
 box.innerHTML="";
 
-let req = tx("config").get("wa");
+let r = tx("config").get("wa");
 
-req.onsuccess = function(){
-let data = req.result?.value || [];
+r.onsuccess=function(){
+let data = r.result?.value || [];
 
 if(data.length===0){
 box.innerHTML="<small>Belum ada WA</small>";
@@ -226,12 +221,14 @@ return;
 
 data.forEach(no=>{
 let div=document.createElement("div");
+
 div.innerHTML=`
 <label>
 <input type="radio" name="wa" value="${no}">
 ${no}
 </label>
 `;
+
 box.appendChild(div);
 });
 };
@@ -268,6 +265,7 @@ addSlot("slot2","slot2_jumlah");
 /* FOTO */
 let foto="";
 let f=document.getElementById("foto").files[0];
+
 if(f) foto=await compress(f);
 
 /* DATA */
@@ -280,7 +278,7 @@ catatan:document.getElementById("catatan").value,
 foto
 };
 
-/* SAVE INDEXEDDB */
+/* SAVE */
 tx("jajan","readwrite").add(data);
 
 /* WA */
@@ -297,7 +295,7 @@ let url=`https://wa.me/${selected.value}?text=${encodeURIComponent(teks)}`;
 window.location.href=url;
 }
 
-alert("Tersimpan!");
+alert("Berhasil disimpan");
 location.reload();
 }
 
@@ -307,12 +305,14 @@ location.reload();
 function compress(file){
 return new Promise(res=>{
 let r=new FileReader();
+
 r.onload=e=>{
 let img=new Image();
 img.src=e.target.result;
 
 img.onload=()=>{
 let c=document.createElement("canvas");
+
 let scale=400/img.width;
 
 c.width=400;
@@ -324,6 +324,7 @@ ctx.drawImage(img,0,0,c.width,c.height);
 res(c.toDataURL("image/jpeg",0.6));
 };
 };
+
 r.readAsDataURL(file);
 });
 }
