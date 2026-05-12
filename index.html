@@ -3,75 +3,61 @@
 <head>
 <title>Input Jajan</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="manifest.json">
 
 <style>
 body{
-font-family:'Segoe UI',Arial;
+font-family:Segoe UI,Arial;
 margin:0;
 background:linear-gradient(135deg,#0f172a,#1e3a8a);
 }
+
 .container{
-max-width:420px;
+max-width:450px;
 margin:auto;
-padding:10px;
+padding:12px;
 }
+
 .card{
 background:white;
-border-radius:16px;
-padding:15px;
-box-shadow:0 8px 20px rgba(0,0,0,0.2);
+border-radius:18px;
+padding:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
-.tabs{
-display:flex;
-background:#1e3a8a;
-border-radius:12px 12px 0 0;
-overflow:hidden;
-margin-bottom:10px;
-}
-.tab-btn{
-flex:1;
-padding:12px;
-border:none;
-background:transparent;
-color:white;
-font-weight:700;
-}
-.tab-btn.active{
-background:#3b82f6;
-}
+
 h2{
 text-align:center;
 color:#1e3a8a;
+margin-bottom:10px;
 }
+
 label{
 font-weight:700;
 font-size:13px;
-margin-top:8px;
+margin-top:10px;
 display:block;
 }
-select,input[type="number"]{
+
+input,select,textarea{
 width:100%;
 padding:10px;
+margin-top:5px;
 border-radius:10px;
 border:1px solid #cbd5f5;
-margin-bottom:10px;
 font-weight:600;
+box-sizing:border-box;
 }
-input[type="number"]{
-text-align:center;
-font-size:16px;
-}
+
 .row{
 display:flex;
-justify-content:space-between;
+gap:10px;
 align-items:center;
-border-bottom:1px solid #eee;
-padding:8px 0;
+margin-top:8px;
 }
-.row input{
-width:80px;
+
+.row input, .row select{
+flex:1;
 }
+
 button{
 width:100%;
 padding:14px;
@@ -81,22 +67,19 @@ background:#1e3a8a;
 color:white;
 font-weight:700;
 margin-top:10px;
+cursor:pointer;
 }
-img{
-width:100%;
-border-radius:10px;
-margin-top:8px;
+
+.item-box{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:8px 0;
+border-bottom:1px solid #eee;
 }
-#catatan{
-width:100%;
-padding:12px;
-margin-top:6px;
-border-radius:10px;
-border:1px solid #cbd5f5;
-font-size:15px;
-font-weight:600;
-box-sizing:border-box;
-resize:none;
+
+small{
+color:gray;
 }
 </style>
 </head>
@@ -104,23 +87,17 @@ resize:none;
 <body>
 
 <div class="container">
-
-<div class="tabs">
-<button class="tab-btn active">Input</button>
-</div>
-
 <div class="card">
 
-<h2>Input Jajan</h2>
+<h2 id="judul">Input Jajan</h2>
 
 <label>Foto</label>
 <input type="file" id="foto" accept="image/*">
-<img id="preview" style="display:none">
 
 <label>Jenis</label>
 <select id="jenis">
-<option value="Masuk">Masuk</option>
-<option value="Sisa">Sisa</option>
+<option>Masuk</option>
+<option>Sisa</option>
 </select>
 
 <label>Tempat</label>
@@ -129,257 +106,235 @@ resize:none;
 <option>Akhwat</option>
 </select>
 
-<!-- 🔥 ITEM DINAMIS -->
 <div id="dynamicItems"></div>
 
-<!-- SLOT -->
 <div class="row">
-<select id="slot1"><option value="">-- Pilih --</option></select>
+<select id="slot1"></select>
 <input type="number" id="slot1_jumlah">
 </div>
 
 <div class="row">
-<select id="slot2"><option value="">-- Pilih --</option></select>
+<select id="slot2"></select>
 <input type="number" id="slot2_jumlah">
 </div>
 
 <label>Catatan</label>
 <textarea id="catatan"></textarea>
 
-<!-- WA -->
-<label>Pilih Kirim ke WA</label>
-<div id="pilihWA"></div>
+<label>WA Tujuan</label>
+<div id="waList"></div>
 
-<button onclick="kirim()">💾 Simpan</button>
-<button onclick="location.href='setting.html'">⚙️ Setting</button>
+<button onclick="simpan()">Simpan</button>
+<button onclick="location.href='laporan.html'">Laporan</button>
 
 </div>
 </div>
 
 <script>
+/* =========================
+   INDEXEDDB SETUP
+========================= */
+let db;
 
-// PREVIEW FOTO
-document.getElementById("foto").addEventListener("change",function(e){
-let file=e.target.files[0];
-if(!file) return;
+let request = indexedDB.open("JajanDB", 1);
 
-let reader=new FileReader();
-reader.onload=function(ev){
-let img=document.getElementById("preview");
-img.src=ev.target.result;
-img.style.display="block";
+request.onupgradeneeded = function(e){
+db = e.target.result;
+
+db.createObjectStore("items", {keyPath:"id", autoIncrement:true});
+db.createObjectStore("jajan", {keyPath:"id", autoIncrement:true});
+db.createObjectStore("config", {keyPath:"key"});
+};
+
+request.onsuccess = function(e){
+db = e.target.result;
+
+loadAll();
+};
+
+/* =========================
+   HELPER DB
+========================= */
+function tx(store,mode="readonly"){
+return db.transaction(store,mode).objectStore(store);
 }
-reader.readAsDataURL(file);
-});
 
-// FORMAT
-function formatTanggal(){
-let hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
-let bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-let d = new Date();
-return `${hari[d.getDay()]}, ${d.getDate()} ${bulan[d.getMonth()]}`;
-}
-
-// LOAD ITEM DINAMIS
+/* =========================
+   LOAD ITEMS
+========================= */
 function loadItems(){
-let container=document.getElementById("dynamicItems");
-container.innerHTML="Loading...";
-
-db.ref("items").once("value",snap=>{
+let container = document.getElementById("dynamicItems");
 container.innerHTML="";
 
-if(!snap.exists()){
-container.innerHTML="Belum ada item";
+let req = tx("items").getAll();
+
+req.onsuccess = function(){
+req.result.forEach(item=>{
+let div = document.createElement("div");
+div.className="item-box";
+
+div.innerHTML=`
+<span>${item.nama}</span>
+<input type="number" data-nama="${item.nama}">
+`;
+
+container.appendChild(div);
+});
+};
+}
+
+/* =========================
+   DROPDOWN
+========================= */
+function loadDropdown(){
+let s1=document.getElementById("slot1");
+let s2=document.getElementById("slot2");
+
+s1.innerHTML="";
+s2.innerHTML="";
+
+let req = tx("items").getAll();
+
+req.onsuccess = function(){
+req.result.forEach(item=>{
+let opt=document.createElement("option");
+opt.value=item.nama;
+opt.textContent=item.nama;
+
+s1.appendChild(opt.cloneNode(true));
+s2.appendChild(opt.cloneNode(true));
+});
+};
+}
+
+/* =========================
+   WA LIST LOCAL CONFIG
+========================= */
+function loadWA(){
+let box=document.getElementById("waList");
+box.innerHTML="";
+
+let req = tx("config").get("wa");
+
+req.onsuccess = function(){
+let data = req.result?.value || [];
+
+if(data.length===0){
+box.innerHTML="<small>Belum ada WA</small>";
 return;
 }
 
-snap.forEach(c=>{
-let data = c.val();
-let nama = data.nama || data;
-
+data.forEach(no=>{
 let div=document.createElement("div");
-div.className="row";
-
-div.innerHTML=`
-<span>${nama}</span>
-<input type="number" data-nama="${nama}">
-`;
-
-container.appendChild(div);
-});
-});
-}
-
-// DROPDOWN
-function loadDropdownItems(){
-let slot1=document.getElementById("slot1");
-let slot2=document.getElementById("slot2");
-
-slot1.innerHTML='<option value="">-- Pilih --</option>';
-slot2.innerHTML='<option value="">-- Pilih --</option>';
-
-db.ref("items").once("value",snap=>{
-snap.forEach(c=>{
-let data = c.val();
-let nama = data.nama || data;
-
-let opt=document.createElement("option");
-opt.value=nama;
-opt.textContent=nama;
-
-slot1.appendChild(opt.cloneNode(true));
-slot2.appendChild(opt.cloneNode(true));
-});
-});
-}
-
-// LOAD WA
-function loadWAOptions(){
-let container = document.getElementById("pilihWA");
-container.innerHTML="Loading...";
-
-db.ref("config/wa").once("value",snap=>{
-let wa = snap.val() || {};
-container.innerHTML="";
-
-for(let i=1;i<=4;i++){
-if(wa["wa"+i]){
-let div=document.createElement("div");
-div.className="row";
-
 div.innerHTML=`
 <label>
-<input type="radio" name="wa" value="${wa["wa"+i]}">
-${wa["wa"+i]}
+<input type="radio" name="wa" value="${no}">
+${no}
 </label>
 `;
-
-container.appendChild(div);
-}
-}
-
-if(container.innerHTML===""){
-container.innerHTML="Belum ada nomor WA";
-}
+box.appendChild(div);
 });
+};
 }
 
-// KIRIM
-async function kirim(){
+/* =========================
+   SIMPAN DATA
+========================= */
+async function simpan(){
 
 let items=[];
 
-// ambil dari dynamic
-document.querySelectorAll("#dynamicItems input").forEach(input=>{
-let val=input.value;
-if(val && val!=0){
+document.querySelectorAll("#dynamicItems input").forEach(i=>{
+if(i.value){
 items.push({
-barang:input.dataset.nama,
-jumlah:Number(val)
+barang:i.dataset.nama,
+jumlah:Number(i.value)
 });
 }
 });
 
-// slot tambahan
-function tambahSlot(idBarang,idJumlah){
-let barang=document.getElementById(idBarang).value;
-let jumlah=document.getElementById(idJumlah).value;
+function addSlot(id1,id2){
+let b=document.getElementById(id1).value;
+let j=document.getElementById(id2).value;
 
-if(barang && jumlah && jumlah!=0){
-items.push({
-barang:barang,
-jumlah:Number(jumlah)
-});
+if(b && j){
+items.push({barang:b,jumlah:Number(j)});
 }
 }
 
-tambahSlot("slot1","slot1_jumlah");
-tambahSlot("slot2","slot2_jumlah");
+addSlot("slot1","slot1_jumlah");
+addSlot("slot2","slot2_jumlah");
 
-// foto
-let fotoBase64="";
+/* FOTO */
+let foto="";
 let f=document.getElementById("foto").files[0];
-if(f){
-fotoBase64=await kompresGambar(f);
-}
+if(f) foto=await compress(f);
 
-// data
+/* DATA */
 let data={
 waktu:new Date().toISOString(),
 tempat:document.getElementById("tempat").value,
 jenis:document.getElementById("jenis").value,
-items:items,
+items,
 catatan:document.getElementById("catatan").value,
-foto:fotoBase64
+foto
 };
 
-// simpan ke firebase (🔥 pakai DB lama kamu)
-await db.ref("jajan").push(data);
+/* SAVE INDEXEDDB */
+tx("jajan","readwrite").add(data);
 
-// kirim WA
-let selected = document.querySelector('input[name="wa"]:checked');
+/* WA */
+let selected=document.querySelector('input[name="wa"]:checked');
 
 if(selected){
-let teks = formatTanggal()+"\n";
-teks += `${data.jenis} - ${data.tempat}\n\n`;
+let teks=`${data.jenis} - ${data.tempat}\n\n`;
 
 data.items.forEach(i=>{
-teks += `${i.barang} ${i.jumlah}\n`;
+teks+=`${i.barang} ${i.jumlah}\n`;
 });
 
-let url = `https://wa.me/${selected.value}?text=${encodeURIComponent(teks)}`;
-window.open(url,"_blank");
+let url=`https://wa.me/${selected.value}?text=${encodeURIComponent(teks)}`;
+window.location.href=url;
 }
 
-alert("Berhasil disimpan");
+alert("Tersimpan!");
 location.reload();
 }
 
-// kompres
-function kompresGambar(file){
-return new Promise(resolve=>{
-let reader=new FileReader();
-reader.onload=e=>{
+/* =========================
+   COMPRESS IMAGE
+========================= */
+function compress(file){
+return new Promise(res=>{
+let r=new FileReader();
+r.onload=e=>{
 let img=new Image();
 img.src=e.target.result;
+
 img.onload=()=>{
-let canvas=document.createElement("canvas");
+let c=document.createElement("canvas");
 let scale=400/img.width;
-canvas.width=400;
-canvas.height=img.height*scale;
-let ctx=canvas.getContext("2d");
-ctx.drawImage(img,0,0,canvas.width,canvas.height);
-resolve(canvas.toDataURL("image/jpeg",0.5));
+
+c.width=400;
+c.height=img.height*scale;
+
+let ctx=c.getContext("2d");
+ctx.drawImage(img,0,0,c.width,c.height);
+
+res(c.toDataURL("image/jpeg",0.6));
 };
 };
-reader.readAsDataURL(file);
+r.readAsDataURL(file);
 });
 }
 
-</script>
-
-<!-- 🔥 FIREBASE ASLI KODE 1 -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
-<script>
-const firebaseConfig={
-apiKey:"AIzaSyAIEhd42LiAEu7CzsnTXubQdxH1dzu1nyQ",
-authDomain:"cilok-86ced.firebaseapp.com",
-databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId:"cilok-86ced",
-storageBucket:"cilok-86ced.firebasestorage.app",
-messagingSenderId:"1038629771281",
-appId:"1:1038629771281:web:45d56ba73acaf6613a79b0"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db=firebase.database();
-
-window.onload=function(){
+/* =========================
+   LOAD ALL
+========================= */
+function loadAll(){
 loadItems();
-loadDropdownItems();
-loadWAOptions();
+loadDropdown();
+loadWA();
 }
 </script>
 
