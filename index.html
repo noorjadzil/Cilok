@@ -1,342 +1,407 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<title>Input Jajan</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MAQSHOF</title>
+
+<link rel="manifest" href="manifest.json">
 
 <style>
-body{
-font-family:Segoe UI,Arial;
+
+*{
 margin:0;
-background:linear-gradient(135deg,#0f172a,#1e3a8a);
-}
-
-.container{
-max-width:450px;
-margin:auto;
-padding:12px;
-}
-
-.card{
-background:white;
-border-radius:18px;
-padding:16px;
-box-shadow:0 10px 25px rgba(0,0,0,0.2);
-}
-
-h2{
-text-align:center;
-color:#1e3a8a;
-margin-bottom:10px;
-}
-
-label{
-font-weight:700;
-font-size:13px;
-margin-top:10px;
-display:block;
-}
-
-input,select,textarea{
-width:100%;
-padding:10px;
-margin-top:5px;
-border-radius:10px;
-border:1px solid #cbd5f5;
-font-weight:600;
+padding:0;
 box-sizing:border-box;
 }
 
-.row{
-display:flex;
-gap:10px;
-margin-top:8px;
-align-items:center;
+body{
+font-family:'Segoe UI',sans-serif;
+background:#0f172a;
+min-height:100vh;
+color:white;
+overflow-x:hidden;
 }
 
-.row input, .row select{
+.bg{
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at top left,#2563eb55,transparent 35%),
+radial-gradient(circle at bottom right,#06b6d455,transparent 35%),
+linear-gradient(135deg,#020617,#0f172a,#111827);
+z-index:-2;
+}
+
+.blur1,
+.blur2{
+position:fixed;
+border-radius:50%;
+filter:blur(90px);
+z-index:-1;
+}
+
+.blur1{
+width:250px;
+height:250px;
+background:#2563eb55;
+top:-50px;
+left:-50px;
+}
+
+.blur2{
+width:250px;
+height:250px;
+background:#06b6d455;
+bottom:-50px;
+right:-50px;
+}
+
+.header{
+padding:30px 20px 10px;
+text-align:center;
+}
+
+.logo{
+font-size:34px;
+font-weight:900;
+letter-spacing:4px;
+background:linear-gradient(90deg,#60a5fa,#22d3ee);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.sub{
+margin-top:8px;
+font-size:14px;
+color:#94a3b8;
+}
+
+.container{
+max-width:480px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:28px;
+padding:22px;
+box-shadow:
+0 10px 40px rgba(0,0,0,0.35),
+inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.section-title{
+font-size:13px;
+font-weight:700;
+letter-spacing:1px;
+color:#94a3b8;
+margin-bottom:10px;
+margin-top:20px;
+text-transform:uppercase;
+}
+
+.input-group{
+margin-bottom:18px;
+}
+
+label{
+display:block;
+margin-bottom:8px;
+font-size:13px;
+font-weight:700;
+color:#cbd5e1;
+}
+
+select,
+textarea,
+input[type="number"],
+input[type="date"]{
+width:100%;
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:18px;
+padding:15px;
+font-size:15px;
+color:white;
+outline:none;
+transition:0.25s;
+}
+
+select:focus,
+textarea:focus,
+input:focus{
+border-color:#38bdf8;
+box-shadow:0 0 0 4px rgba(56,189,248,0.15);
+}
+
+option{
+background:#0f172a;
+}
+
+textarea{
+resize:none;
+min-height:100px;
+}
+
+.item-row{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:12px;
+padding:12px;
+border-radius:18px;
+background:rgba(255,255,255,0.04);
+border:1px solid rgba(255,255,255,0.06);
+}
+
+.item-name{
+flex:2;
+font-size:15px;
+font-weight:600;
+color:#e2e8f0;
+}
+
+.item-row input{
 flex:1;
+text-align:center;
 }
 
 button{
 width:100%;
-padding:14px;
+padding:16px;
+margin-top:14px;
 border:none;
-border-radius:12px;
-background:#1e3a8a;
+border-radius:20px;
+font-size:15px;
+font-weight:800;
+cursor:pointer;
+transition:0.25s;
 color:white;
-font-weight:700;
-margin-top:10px;
 }
 
-.item-box{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:6px 0;
-border-bottom:1px solid #eee;
+.primary-btn{
+background:linear-gradient(135deg,#2563eb,#06b6d4);
+box-shadow:0 10px 30px rgba(37,99,235,0.35);
 }
 
-small{
-color:gray;
+.secondary-btn{
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.08);
 }
+
+.footer{
+text-align:center;
+padding:25px;
+font-size:12px;
+color:#64748b;
+}
+
 </style>
 </head>
 
 <body>
 
+<div class="bg"></div>
+<div class="blur1"></div>
+<div class="blur2"></div>
+
+<div class="header">
+<div class="logo">MAQSHOF</div>
+<div class="sub">Smart Data Management System</div>
+</div>
+
 <div class="container">
+
 <div class="card">
 
-<h2>Input Jajan</h2>
+<div class="section-title">Informasi</div>
 
-<label>Foto</label>
-<input type="file" id="foto" accept="image/*">
+<div class="input-group">
+<label>Tanggal</label>
+<input type="date" id="tanggal">
+</div>
 
-<label>Jenis</label>
+<div class="input-group">
+<label>Jenis Data</label>
 <select id="jenis">
-<option>Masuk</option>
-<option>Sisa</option>
+<option value="Masuk">Masuk</option>
+<option value="Sisa">Sisa</option>
 </select>
+</div>
 
-<label>Tempat</label>
-<select id="tempat">
-<option>Ikhwan</option>
-<option>Akhwat</option>
+<div class="input-group">
+<label>Lokasi</label>
+<select id="tempat" disabled>
+<option selected>Akhwat</option>
 </select>
-
-<div id="dynamicItems"></div>
-
-<div class="row">
-<select id="slot1"></select>
-<input type="number" id="slot1_jumlah">
 </div>
 
-<div class="row">
-<select id="slot2"></select>
-<input type="number" id="slot2_jumlah">
+<div class="section-title">Input Item</div>
+
+<div id="itemsContainer"></div>
+
+<div class="section-title">Catatan</div>
+
+<div class="input-group">
+<textarea id="catatan" placeholder="Tambahkan catatan tambahan..."></textarea>
 </div>
 
-<label>Catatan</label>
-<textarea id="catatan"></textarea>
+<button class="primary-btn" onclick="kirim()">
+💾 Simpan Data
+</button>
 
-<label>Pilih WA</label>
-<div id="waList"></div>
+<button class="secondary-btn" onclick="location.href='laporan.html'">
+📊 Laporan
+</button>
 
-<button onclick="simpan()">💾 Simpan</button>
-<button onclick="location.href='setting.html'">⚙️ Setting</button>
+<button class="secondary-btn" onclick="location.href='setting.html'">
+⚙️ Pengaturan
+</button>
 
 </div>
+
+<div class="footer">
+MAQSHOF • Modern Dashboard System
+</div>
+
 </div>
 
 <script>
-/* =========================
-   INDEXEDDB
-========================= */
-let db;
 
-let req = indexedDB.open("JajanDB",1);
+let daftarItems=[];
 
-req.onupgradeneeded = function(e){
-db = e.target.result;
+// SET TANGGAL HARI INI
+document.getElementById("tanggal").value =
+new Date().toISOString().split("T")[0];
 
-db.createObjectStore("items",{keyPath:"id",autoIncrement:true});
-db.createObjectStore("jajan",{keyPath:"id",autoIncrement:true});
-db.createObjectStore("config",{keyPath:"key"});
-};
-
-req.onsuccess = function(e){
-db = e.target.result;
-loadAll();
-};
-
-function tx(store,mode="readonly"){
-return db.transaction(store,mode).objectStore(store);
-}
-
-/* =========================
-   LOAD ITEMS
-========================= */
+// LOAD ITEMS
 function loadItems(){
-let box=document.getElementById("dynamicItems");
-box.innerHTML="";
 
-let r = tx("items").getAll();
+db.ref("items").once("value",snap=>{
 
-r.onsuccess=function(){
-r.result.forEach(i=>{
-let div=document.createElement("div");
-div.className="item-box";
+daftarItems=[];
 
-div.innerHTML=`
-<span>${i.nama}</span>
-<input type="number" data-nama="${i.nama}">
-`;
+snap.forEach(c=>{
 
-box.appendChild(div);
+let data=c.val();
+
+let nama=data.nama || data;
+
+daftarItems.push(nama);
+
 });
-};
-}
 
-/* =========================
-   DROPDOWN
-========================= */
-function loadDropdown(){
-let s1=document.getElementById("slot1");
-let s2=document.getElementById("slot2");
+renderItems();
 
-s1.innerHTML="";
-s2.innerHTML="";
-
-let r = tx("items").getAll();
-
-r.onsuccess=function(){
-r.result.forEach(i=>{
-let opt=document.createElement("option");
-opt.value=i.nama;
-opt.textContent=i.nama;
-
-s1.appendChild(opt.cloneNode(true));
-s2.appendChild(opt.cloneNode(true));
 });
-};
+
 }
 
-/* =========================
-   WA LIST
-========================= */
-function loadWA(){
-let box=document.getElementById("waList");
-box.innerHTML="";
+// RENDER ITEMS LANGSUNG
+function renderItems(){
 
-let r = tx("config").get("wa");
+let container=document.getElementById("itemsContainer");
 
-r.onsuccess=function(){
-let data = r.result?.value || [];
+container.innerHTML="";
 
-if(data.length===0){
-box.innerHTML="<small>Belum ada WA</small>";
-return;
-}
+daftarItems.forEach(item=>{
 
-data.forEach(no=>{
 let div=document.createElement("div");
 
+div.className="item-row";
+
 div.innerHTML=`
-<label>
-<input type="radio" name="wa" value="${no}">
-${no}
-</label>
+
+<div class="item-name">${item}</div>
+
+<input 
+type="number"
+class="jumlah"
+data-item="${item}"
+placeholder="0">
+
 `;
 
-box.appendChild(div);
+container.appendChild(div);
+
 });
-};
+
 }
 
-/* =========================
-   SIMPAN DATA
-========================= */
-async function simpan(){
+// SIMPAN
+async function kirim(){
 
 let items=[];
 
-document.querySelectorAll("#dynamicItems input").forEach(i=>{
-if(i.value){
+// AMBIL ITEM
+document.querySelectorAll(".jumlah").forEach(input=>{
+
+let jumlah=input.value;
+let barang=input.dataset.item;
+
+if(jumlah && jumlah != 0){
+
 items.push({
-barang:i.dataset.nama,
-jumlah:Number(i.value)
-});
-}
+barang:barang,
+jumlah:Number(jumlah)
 });
 
-function addSlot(id1,id2){
-let b=document.getElementById(id1).value;
-let j=document.getElementById(id2).value;
-
-if(b && j){
-items.push({barang:b,jumlah:Number(j)});
-}
 }
 
-addSlot("slot1","slot1_jumlah");
-addSlot("slot2","slot2_jumlah");
+});
 
-/* FOTO */
-let foto="";
-let f=document.getElementById("foto").files[0];
-
-if(f) foto=await compress(f);
-
-/* DATA */
+// DATA
 let data={
+
+tanggal:document.getElementById("tanggal").value,
+
 waktu:new Date().toISOString(),
+
 tempat:document.getElementById("tempat").value,
+
 jenis:document.getElementById("jenis").value,
-items,
-catatan:document.getElementById("catatan").value,
-foto
+
+items:items,
+
+catatan:document.getElementById("catatan").value
+
 };
 
-/* SAVE */
-tx("jajan","readwrite").add(data);
+await db.ref("jajan").push(data);
 
-/* WA */
-let selected=document.querySelector('input[name="wa"]:checked');
+alert("Data berhasil disimpan");
 
-if(selected){
-let teks=`${data.jenis} - ${data.tempat}\n\n`;
-
-data.items.forEach(i=>{
-teks+=`${i.barang} ${i.jumlah}\n`;
-});
-
-let url=`https://wa.me/${selected.value}?text=${encodeURIComponent(teks)}`;
-window.location.href=url;
-}
-
-alert("Berhasil disimpan");
 location.reload();
+
 }
 
-/* =========================
-   COMPRESS IMAGE
-========================= */
-function compress(file){
-return new Promise(res=>{
-let r=new FileReader();
+</script>
 
-r.onload=e=>{
-let img=new Image();
-img.src=e.target.result;
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 
-img.onload=()=>{
-let c=document.createElement("canvas");
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-let scale=400/img.width;
+<script>
 
-c.width=400;
-c.height=img.height*scale;
+firebase.initializeApp({
 
-let ctx=c.getContext("2d");
-ctx.drawImage(img,0,0,c.width,c.height);
+databaseURL:"https://maqshof-d5772-default-rtdb.asia-southeast1.firebasedatabase.app"
 
-res(c.toDataURL("image/jpeg",0.6));
-};
-};
-
-r.readAsDataURL(file);
 });
+
+const db=firebase.database();
+
+window.onload=function(){
+
+loadItems();
+
 }
 
-/* =========================
-   LOAD ALL
-========================= */
-function loadAll(){
-loadItems();
-loadDropdown();
-loadWA();
-}
 </script>
 
 </body>
