@@ -6,105 +6,120 @@
 <title>Laporan MAQSHOF</title>
 
 <style>
+
 body{
 margin:0;
 font-family:Segoe UI;
-background:#0b1220;
-color:#fff;
-}
-
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
+background:#020617;
+color:white;
 padding:14px;
-background:#111827;
-position:sticky;
-top:0;
-z-index:10;
 }
 
-.header a{
-color:#fff;
-text-decoration:none;
-background:#2563eb;
-padding:6px 10px;
-border-radius:8px;
-font-size:13px;
+.container{
+max-width:1000px;
+margin:auto;
 }
 
-.container{max-width:1000px;margin:auto;padding:12px}
+h2{
+text-align:center;
+margin-bottom:14px;
+}
 
+/* TAB */
 .tab{
 display:flex;
-gap:6px;
-margin-top:10px;
+gap:8px;
+margin-bottom:14px;
 }
 
 .tab button{
 flex:1;
-padding:10px;
+padding:12px;
 border:none;
-border-radius:10px;
+border-radius:14px;
+font-weight:800;
 cursor:pointer;
-color:#fff;
+color:white;
 }
 
-.active{background:#2563eb}
-.nonactive{background:#1f2937}
+.active{
+background:linear-gradient(135deg,#2563eb,#06b6d4);
+}
 
+.nonactive{
+background:rgba(255,255,255,0.06);
+}
+
+/* CARD */
 .card{
 background:#111827;
 padding:12px;
-border-radius:12px;
-margin-top:10px;
+border-radius:14px;
+margin-bottom:10px;
 }
 
+/* TABLE */
 table{
 width:100%;
 border-collapse:collapse;
-font-size:12px;
-margin-top:10px;
+font-size:11px;
+min-width:900px;
 }
 
 th,td{
-border-bottom:1px solid #1f2937;
+border:1px solid #1f2937;
 padding:6px;
 text-align:center;
 white-space:nowrap;
 }
 
-.scroll{overflow-x:auto}
-
-.badge{
-display:inline-block;
-padding:3px 8px;
-border-radius:999px;
-background:#1f2937;
-font-size:11px;
-margin-left:6px;
+th{
+background:#0f172a;
 }
+
+/* SCROLL */
+.scroll{
+overflow-x:auto;
+}
+
+.more-btn{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:12px;
+background:rgba(255,255,255,0.06);
+color:white;
+font-weight:800;
+cursor:pointer;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="header">
-<div><b>📊 Laporan MAQSHOF</b></div>
-<a href="index.html">⬅ Kembali</a>
-</div>
-
 <div class="container">
 
+<h2>📊 Laporan MAQSHOF</h2>
+
 <div class="tab">
-<button id="b1" class="active" onclick="showTab('laporan')">Laporan</button>
-<button id="b2" class="nonactive" onclick="showTab('harian')">Harian</button>
-<button id="b3" class="nonactive" onclick="showTab('bulanan')">Bulanan</button>
+
+<button id="btn1" class="active" onclick="openTab('terbaru')">
+Terbaru
+</button>
+
+<button id="btn2" class="nonactive" onclick="openTab('bulanan')">
+Bulanan
+</button>
+
 </div>
 
-<div id="laporan" class="card"></div>
-<div id="harian" class="card" style="display:none"></div>
-<div id="bulanan" class="card" style="display:none"></div>
+<!-- TERBARU -->
+<div id="tabTerbaru"></div>
+
+<!-- BULANAN -->
+<div id="tabBulanan" style="display:none"></div>
 
 </div>
 
@@ -117,219 +132,203 @@ firebase.initializeApp({
 databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.app/"
 });
 
-const db=firebase.database();
+const db = firebase.database();
 
-/* ================= NORMALISASI ================= */
-function toNum(v){
-if(v===null || v===undefined) return 0;
-if(typeof v==="string"){
-v=v.trim().toLowerCase();
-if(v==="o" || v==="") return 0;
-}
-let n=Number(v);
-return isNaN(n)?0:n;
+let allData = [];
+let limit = 3;
+
+/* SAFE */
+function num(v){
+v = Number(v);
+return isNaN(v) ? 0 : v;
 }
 
-function getItems(d){
-if(!d) return [];
-if(Array.isArray(d)) return d;
-if(typeof d==="object") return Object.values(d);
-return [];
+/* BULAN */
+function getBulan(tgl){
+let d = new Date(tgl);
+return d.toLocaleDateString("id-ID",{month:"long",year:"numeric"});
 }
 
-/* ================= TAB ================= */
-function showTab(t){
-document.getElementById("laporan").style.display=(t==="laporan")?"block":"none";
-document.getElementById("harian").style.display=(t==="harian")?"block":"none";
-document.getElementById("bulanan").style.display=(t==="bulanan")?"block":"none";
+/* LOAD */
+function load(){
 
-document.getElementById("b1").className=(t==="laporan")?"active":"nonactive";
-document.getElementById("b2").className=(t==="harian")?"active":"nonactive";
-document.getElementById("b3").className=(t==="bulanan")?"active":"nonactive";
+db.ref("jajan").once("value", snap=>{
+
+allData = [];
+
+snap.forEach(c=>{
+allData.push(c.val());
+});
+
+allData.reverse();
+
+renderTerbaru();
+renderBulanan();
+
+});
+
 }
 
-/* ================= LAPORAN ================= */
-function loadLaporan(){
+/* TAB */
+function openTab(t){
 
-db.ref("jajan").limitToLast(20).once("value",snap=>{
+document.getElementById("tabTerbaru").style.display = t==="terbaru"?"block":"none";
+document.getElementById("tabBulanan").style.display = t==="bulanan"?"block":"none";
 
-let box=document.getElementById("laporan");
-box.innerHTML="";
+document.getElementById("btn1").className = t==="terbaru"?"active":"nonactive";
+document.getElementById("btn2").className = t==="bulanan"?"active":"nonactive";
 
-if(!snap.exists()){
-box.innerHTML="Belum ada data";
-return;
 }
 
-let arr=[];
-snap.forEach(c=>arr.push(c.val()));
-arr.reverse();
+/* ================= TERBARU ================= */
+function renderTerbaru(){
 
-arr.forEach(d=>{
+let box = document.getElementById("tabTerbaru");
 
-let items=getItems(d.items);
+box.innerHTML = "";
 
-let htmlItems=items.map(i=>{
-return `• ${i.barang} = Masuk:${toNum(i.masuk)} | Retur:${toNum(i.retur)}`;
-}).join("<br>");
+let data = allData.slice(0, limit);
 
-box.innerHTML+=`
+data.forEach(d=>{
+
+let items = (Array.isArray(d.items)?d.items:Object.values(d.items||{}))
+.filter(i=>i && i.barang);
+
+let html = items.map(i=>`
+<div style="padding:4px 0;border-bottom:1px solid #1f2937">
+${i.barang} | ${num(i.masuk)} / ${num(i.retur)}
+</div>
+`).join("");
+
+box.innerHTML += `
 <div class="card">
-<small>${d.tanggal || "-"}</small>
-<br><br>
-${htmlItems}
-</div>`;
-});
+<b>${d.tanggal}</b> • ${d.tempat}
+${html}
+</div>
+`;
 
 });
+
+if(allData.length > limit){
+box.innerHTML += `
+<button class="more-btn" onclick="loadMore()">
+Lihat 10 lagi
+</button>
+`;
 }
 
-/* ================= HARIAN ================= */
-function loadHarian(){
-
-db.ref("jajan").once("value",snap=>{
-
-let data={};
-let tanggalSet=new Set();
-
-snap.forEach(c=>{
-let d=c.val();
-
-let tgl=d.tanggal || "";
-tanggalSet.add(tgl);
-
-getItems(d.items).forEach(i=>{
-
-let nama=i.barang||"-";
-let masuk=toNum(i.masuk);
-let retur=toNum(i.retur);
-
-if(!data[nama]) data[nama]={};
-if(!data[nama][tgl]) data[nama][tgl]={masuk:0,retur:0};
-
-data[nama][tgl].masuk+=masuk;
-data[nama][tgl].retur+=retur;
-
-});
-});
-
-let tglArr=[...tanggalSet].sort();
-
-let html=`<div class="scroll"><table><tr><th>Item</th><th>Type</th>`;
-
-tglArr.forEach(t=>{
-html+=`<th>${t.split("-")[2]||"-"}</th>`;
-});
-
-html+=`</tr>`;
-
-Object.keys(data).forEach(item=>{
-
-html+=`<tr><td rowspan="2"><b>${item}</b></td><td>Masuk</td>`;
-
-tglArr.forEach(t=>{
-html+=`<td>${data[item][t]?.masuk||0}</td>`;
-});
-
-html+=`</tr><tr><td>Retur</td>`;
-
-tglArr.forEach(t=>{
-html+=`<td>${data[item][t]?.retur||0}</td>`;
-});
-
-html+=`</tr>`;
-});
-
-html+=`</table></div>`;
-
-document.getElementById("harian").innerHTML=html;
-
-});
 }
 
-/* ================= BULANAN ================= */
-function loadBulanan(){
-
-db.ref("items").once("value",itemSnap=>{
-
-let harga={};
-
-itemSnap.forEach(c=>{
-let d=c.val();
-harga[(d.nama||"").toLowerCase()] = toNum(d.harga);
-});
-
-db.ref("jajan").once("value",snap=>{
-
-let grup={};
-
-snap.forEach(c=>{
-let d=c.val();
-
-let bulan=(d.tanggal||"").slice(0,7);
-
-if(!grup[bulan]) grup[bulan]={};
-
-getItems(d.items).forEach(i=>{
-
-let nama=(i.barang||"").toLowerCase();
-let masuk=toNum(i.masuk);
-let retur=toNum(i.retur);
-
-if(!grup[bulan][nama]){
-grup[bulan][nama]={masuk:0,retur:0,harga:harga[nama]||0};
+function loadMore(){
+limit += 10;
+renderTerbaru();
 }
 
-grup[bulan][nama].masuk+=masuk;
-grup[bulan][nama].retur+=retur;
+/* ================= BULANAN (1–31) ================= */
+function renderBulanan(){
+
+let box = document.getElementById("tabBulanan");
+
+let grup = {};
+
+/* INIT 1–31 */
+allData.forEach(d=>{
+
+if(!d.tanggal) return;
+
+let day = d.tanggal.split("-")[2]; // 01-31
+let bulan = getBulan(d.tanggal);
+
+if(!grup[bulan]){
+
+grup[bulan] = {
+items:{}
+};
+
+}
+
+let items = (Array.isArray(d.items)?d.items:Object.values(d.items||{}))
+.filter(i=>i && i.barang);
+
+items.forEach(i=>{
+
+let nama = i.barang;
+let masuk = num(i.masuk);
+let retur = num(i.retur);
+let terjual = masuk - retur;
+
+if(!grup[bulan].items[nama]){
+grup[bulan].items[nama] = {};
+}
+
+if(!grup[bulan].items[nama][day]){
+grup[bulan].items[nama][day] = 0;
+}
+
+grup[bulan].items[nama][day] += terjual;
 
 });
 
 });
 
-let html="";
+/* RENDER */
+let html = "";
 
-Object.keys(grup).forEach(b=>{
+Object.keys(grup).forEach(bulan=>{
 
-let total=0;
+html += `
+<div class="card">
 
-html+=`<h3>${b} <span class="badge">Bulanan</span></h3>
-<div class="scroll"><table>
-<tr><th>Item</th><th>Masuk</th><th>Retur</th><th>Terjual</th><th>Total</th></tr>`;
+<h3>📊 Laporan Bulan ${bulan}</h3>
 
-Object.keys(grup[b]).forEach(item=>{
+<div class="scroll">
+<table>
 
-let g=grup[b][item];
-let terjual=Math.max(g.masuk-g.retur,0);
-let tot=terjual*g.harga;
-total+=tot;
-
-html+=`
 <tr>
-<td>${item}</td>
-<td>${g.masuk}</td>
-<td>${g.retur}</td>
-<td>${terjual}</td>
-<td>${tot.toLocaleString("id-ID")}</td>
-</tr>`;
+<th>Item</th>
+<th>Type</th>
+`;
+
+/* HEADER 1-31 */
+for(let i=1;i<=31;i++){
+html += `<th>${i}</th>`;
+}
+
+html += `</tr>`;
+
+Object.keys(grup[bulan].items).forEach(item=>{
+
+/* ROW MASUK (terjual per hari) */
+html += `
+<tr>
+<td rowspan="1"><b>${item}</b></td>
+<td>Terjual</td>
+`;
+
+for(let i=1;i<=31;i++){
+let key = String(i).padStart(2,"0");
+html += `<td>${grup[bulan].items[item][key]||0}</td>`;
+}
+
+html += `</tr>`;
+
 });
 
-html+=`</table></div><b>Total: Rp ${total.toLocaleString("id-ID")}</b><br><br>`;
+html += `
+</table>
+</div>
+
+</div>
+`;
+
 });
 
-document.getElementById("bulanan").innerHTML=html;
-
-});
+box.innerHTML = html;
 
 }
 
 /* INIT */
-window.onload=function(){
-showTab("laporan");
-loadLaporan();
-loadHarian();
-loadBulanan();
-};
+load();
 
 </script>
 
