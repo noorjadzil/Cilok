@@ -222,6 +222,7 @@ snap.forEach(c=>{
 let d = c.val();
 daftarItems.push(d.nama || d);
 });
+daftarItems.sort();
 renderItems();
 });
 }
@@ -244,33 +245,29 @@ async function kirim(){
 
 let hasil = {};
 
-document.querySelectorAll(".masuk").forEach(i=>{
-let item = i.dataset.item;
+document.querySelectorAll(".item-row").forEach(row=>{
+let item = row.querySelector(".masuk").dataset.item;
 
-if(!hasil[item]){
-hasil[item]={barang:item,masuk:0,retur:0};
-}
+let masuk = row.querySelector(".masuk").value;
+let retur = row.querySelector(".retur").value;
 
-let val = i.value.trim();
-hasil[item].masuk = (val==="" || val==="O" || val==="o") ? 0 : Number(val);
-});
-
-document.querySelectorAll(".retur").forEach(i=>{
-let item = i.dataset.item;
-
-if(!hasil[item]){
-hasil[item]={barang:item,masuk:0,retur:0};
-}
-
-let val = i.value.trim();
-hasil[item].retur = (val==="" || val==="O" || val==="o") ? 0 : Number(val);
+hasil[item] = {
+barang: item,
+masuk: (masuk==="" || masuk==="O" || masuk==="o") ? 0 : isNaN(Number(masuk)) ? 0 : Number(masuk),
+retur: (retur==="" || retur==="O" || retur==="o") ? 0 : isNaN(Number(retur)) ? 0 : Number(retur)
+};
 });
 
 let tanggal = document.getElementById("tanggal").value;
 
+if(!tanggal){
+alert("Tanggal wajib diisi!");
+return;
+}
+
 let data = {
+id: Date.now()
 tanggal: tanggal,
-waktu: tanggal + "T00:00:00.000Z", // 🔥 FIX PENTING BIAR LAPORAN STABIL
 tempat: document.getElementById("tempat").value,
 items: Object.values(hasil),
 catatan: document.getElementById("catatan").value
@@ -283,10 +280,10 @@ alert("Tersimpan!");
 document.querySelectorAll(".masuk,.retur").forEach(i=>i.value="");
 document.getElementById("catatan").value="";
 }
-
 window.onload=function(){
-document.getElementById("tanggal").value =
-new Date().toISOString().split("T")[0];
+const d = new Date();
+const local = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
+document.getElementById("tanggal").value = local.toISOString().split("T")[0];
 
 loadItems();
 };
