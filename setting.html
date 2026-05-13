@@ -61,6 +61,7 @@ right:-70px;
 .container{
 max-width:480px;
 margin:auto;
+padding-bottom:100px;
 }
 
 .card{
@@ -69,9 +70,7 @@ backdrop-filter:blur(24px);
 border:1px solid rgba(255,255,255,0.08);
 border-radius:32px;
 padding:22px;
-box-shadow:
-0 10px 40px rgba(0,0,0,0.35),
-inset 0 1px 0 rgba(255,255,255,0.04);
+box-shadow:0 10px 40px rgba(0,0,0,0.35);
 }
 
 .header{
@@ -92,7 +91,6 @@ background:linear-gradient(90deg,#60a5fa,#22d3ee);
 margin-top:6px;
 font-size:13px;
 color:#94a3b8;
-letter-spacing:1px;
 }
 
 .section{
@@ -108,95 +106,73 @@ font-size:14px;
 font-weight:800;
 margin-bottom:14px;
 color:#e2e8f0;
-letter-spacing:0.5px;
-}
-
-label{
-display:block;
-margin-bottom:8px;
-font-size:13px;
-font-weight:700;
-color:#cbd5e1;
 }
 
 input{
 width:100%;
-padding:15px;
-border:none;
-outline:none;
-border-radius:18px;
-font-size:15px;
-margin-bottom:12px;
-background:rgba(255,255,255,0.06);
+padding:14px;
+border-radius:14px;
 border:1px solid rgba(255,255,255,0.08);
+background:rgba(255,255,255,0.06);
 color:white;
-transition:0.25s;
+outline:none;
+margin-bottom:10px;
 }
 
 input:focus{
 border-color:#38bdf8;
-box-shadow:0 0 0 4px rgba(56,189,248,0.15);
-}
-
-input[type="color"]{
-height:55px;
-padding:6px;
-cursor:pointer;
+box-shadow:0 0 0 3px rgba(56,189,248,0.15);
 }
 
 button{
-width:100%;
-padding:15px;
 border:none;
-border-radius:18px;
-font-size:14px;
-font-weight:800;
 cursor:pointer;
-transition:0.25s;
+border-radius:14px;
 color:white;
-}
-
-button:active{
-transform:scale(0.98);
+font-weight:700;
 }
 
 .btn-primary{
+width:100%;
+padding:14px;
 background:linear-gradient(135deg,#2563eb,#06b6d4);
-box-shadow:0 10px 30px rgba(37,99,235,0.35);
 }
 
 .btn-green{
-background:linear-gradient(135deg,#059669,#10b981);
-box-shadow:0 10px 25px rgba(16,185,129,0.30);
+width:100%;
+padding:14px;
 margin-top:12px;
+background:linear-gradient(135deg,#059669,#10b981);
 }
 
 .btn-gray{
+width:100%;
+padding:14px;
+margin-top:14px;
 background:rgba(255,255,255,0.06);
 border:1px solid rgba(255,255,255,0.08);
-margin-top:14px;
 }
 
+/* ITEM CARD */
 .row{
 display:flex;
 align-items:center;
 gap:10px;
-padding:12px;
+padding:14px;
 margin-top:10px;
 border-radius:18px;
-background:rgba(255,255,255,0.04);
-border:1px solid rgba(255,255,255,0.06);
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.08);
 }
 
 .item-info{
 flex:1;
-overflow:hidden;
+min-width:0;
 }
 
 .item-name{
 font-size:15px;
 font-weight:700;
-color:#f8fafc;
 white-space:nowrap;
 overflow:hidden;
 text-overflow:ellipsis;
@@ -204,72 +180,55 @@ text-overflow:ellipsis;
 
 .item-price{
 font-size:12px;
-margin-top:3px;
 color:#94a3b8;
+margin-top:3px;
 }
 
 .price-input{
-width:95px;
-margin:0;
+width:85px;
+padding:10px;
+border-radius:12px;
 text-align:center;
-padding:12px;
-font-weight:700;
+margin:0;
 }
 
-.delete-btn{
-width:48px;
-height:48px;
-border-radius:16px;
-background:rgba(239,68,68,0.12);
-border:1px solid rgba(239,68,68,0.18);
-font-size:18px;
-padding:0;
-flex-shrink:0;
-}
-
-.flex{
+.icon-btn{
+width:42px;
+height:42px;
+border-radius:14px;
 display:flex;
-gap:10px;
 align-items:center;
-}
-
-.flex input{
-margin-bottom:0;
+justify-content:center;
 }
 
 .plus-btn{
-width:58px;
-height:54px;
-padding:0;
-border-radius:18px;
-font-size:24px;
 background:linear-gradient(135deg,#2563eb,#06b6d4);
-flex-shrink:0;
+font-size:20px;
+}
+
+.delete-btn{
+background:rgba(239,68,68,0.15);
+border:1px solid rgba(239,68,68,0.25);
+}
+
+/* FAB */
+.fab{
+position:fixed;
+bottom:18px;
+right:18px;
+width:60px;
+height:60px;
+border-radius:50%;
+background:linear-gradient(135deg,#2563eb,#06b6d4);
+font-size:28px;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+z-index:999;
 }
 
 .empty{
+text-align:center;
 padding:18px;
-text-align:center;
-font-size:14px;
-border-radius:18px;
-background:rgba(255,255,255,0.04);
-border:1px dashed rgba(255,255,255,0.08);
 color:#94a3b8;
-margin-top:10px;
-}
-
-.loading{
-padding:18px;
-text-align:center;
-color:#94a3b8;
-font-weight:700;
-}
-
-.footer{
-margin-top:22px;
-text-align:center;
-font-size:12px;
-color:#64748b;
 }
 
 </style>
@@ -292,107 +251,42 @@ color:#64748b;
 
 <!-- LABEL -->
 <div class="section">
-
-<div class="section-title">
-🏷️ Custom Label
-</div>
-
-<input
-type="text"
-id="labelApp"
-placeholder="Contoh : Kantin / Kas / Inventaris"
->
-
-<button class="btn-primary" onclick="saveLabel()">
-Simpan Label
-</button>
-
+<div class="section-title">🏷️ Custom Label</div>
+<input id="labelApp" placeholder="Contoh : Kantin / Kas / Inventaris">
+<button class="btn-primary" onclick="saveLabel()">Simpan Label</button>
 </div>
 
 <!-- THEME -->
 <div class="section">
-
-<div class="section-title">
-🎨 Warna Tampilan
-</div>
-
-<label>Primary Color</label>
+<div class="section-title">🎨 Warna Tampilan</div>
 <input type="color" id="colorPrimary">
-
-<label>Background Color</label>
 <input type="color" id="colorBg">
-
-<button class="btn-primary" onclick="saveTheme()">
-Simpan Warna
-</button>
-
+<button class="btn-primary" onclick="saveTheme()">Simpan Warna</button>
 </div>
 
 <!-- WA -->
 <div class="section">
-
-<div class="section-title">
-📱 WhatsApp
-</div>
-
-<input type="text" id="wa1" placeholder="628xxx">
-<input type="text" id="wa2" placeholder="628xxx">
-<input type="text" id="wa3" placeholder="628xxx">
-<input type="text" id="wa4" placeholder="628xxx">
-
-<button class="btn-primary" onclick="saveWA()">
-Simpan Nomor
-</button>
-
+<div class="section-title">📱 WhatsApp</div>
+<input id="wa1" placeholder="628xxx">
+<input id="wa2" placeholder="628xxx">
+<input id="wa3" placeholder="628xxx">
+<input id="wa4" placeholder="628xxx">
+<button class="btn-primary" onclick="saveWA()">Simpan Nomor</button>
 </div>
 
 <!-- ITEM -->
 <div class="section">
-
-<div class="section-title">
-🍔 Item & Harga
+<div class="section-title">🍔 Item & Harga</div>
+<div id="listItem">Loading...</div>
+<button class="btn-green" onclick="undo()">↩️ Undo Hapus</button>
 </div>
 
-<div class="flex">
-
-<input
-type="text"
-id="namaItem"
-placeholder="Nama item"
->
-
-<input
-type="number"
-id="hargaItem"
-placeholder="Harga"
->
-
-<button onclick="tambahItem()" class="plus-btn">
-+
-</button>
-
-</div>
-
-<div id="listItem" class="loading">
-Loading...
-</div>
-
-<button class="btn-green" onclick="undo()">
-↩️ Undo Hapus
-</button>
-
-</div>
-
-<button class="btn-gray" onclick="kembali()">
-⬅️ Kembali
-</button>
-
-<div class="footer">
-MAQSHOF • Smart Dashboard System
-</div>
+<button class="btn-gray" onclick="kembali()">⬅️ Kembali</button>
 
 </div>
 </div>
+
+<button class="fab" onclick="showAddForm()">+</button>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -404,340 +298,151 @@ databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.a
 });
 
 const db=firebase.database();
-
 let lastDeleted=null;
 
-
-// LOAD ITEM
+// LOAD
 function loadItems(){
-
-let list=document.getElementById("listItem");
-
 db.ref("items").on("value",snap=>{
-
+let list=document.getElementById("listItem");
 list.innerHTML="";
 
 if(!snap.exists()){
-list.innerHTML=`
-<div class="empty">
-Belum ada item
-</div>
-`;
+list.innerHTML=`<div class="empty">Belum ada item</div>`;
 return;
 }
 
 let items=[];
-
 snap.forEach(c=>{
-items.push({
-key:c.key,
-data:c.val()
-});
+items.push({key:c.key,data:c.val()});
 });
 
-/* 🔥 FIX URUTAN DI SINI */
-items.sort((a,b)=>{
-return (a.data.urutan || 0) - (b.data.urutan || 0);
-});
+items.sort((a,b)=>(a.data.urutan||0)-(b.data.urutan||0));
 
 items.forEach((item,index)=>{
 
 let key=item.key;
 let data=item.data;
 
-let nama=data.nama || data;
-let harga=data.harga || 0;
-
 let div=document.createElement("div");
 div.className="row";
 
 div.innerHTML=`
-
 <div class="item-info">
-<div class="item-name">${nama}</div>
-<div class="item-price">
-Rp ${Number(harga).toLocaleString("id-ID")}
-</div>
+<div class="item-name">${data.nama}</div>
+<div class="item-price">Rp ${Number(data.harga).toLocaleString("id-ID")}</div>
 </div>
 
-<input
-type="number"
-value="${harga}"
-class="price-input"
+<input class="price-input" type="number"
+value="${data.harga}"
 onchange="updateHarga('${key}',this.value)">
 
-<button class="plus-btn" onclick="showInsertForm(${index})">+</button>
-
-<button class="delete-btn" onclick="hapusItem('${key}')">🗑️</button>
+<button class="icon-btn plus-btn" onclick="showInsertForm(${index})">+</button>
+<button class="icon-btn delete-btn" onclick="hapusItem('${key}')">🗑️</button>
 `;
 
 list.appendChild(div);
 
 });
-
 });
-
 }
 
-// TAMPILKAN FORM INSERT
-function showInsertForm(index){
+// ADD FORM FLOAT
+function showAddForm(){
 
-// hapus form lama
 let old=document.getElementById("insertForm");
+if(old) old.remove();
 
-if(old){
-old.remove();
+let div=document.createElement("div");
+div.className="row";
+div.id="insertForm";
+
+div.innerHTML=`
+<div class="item-info">
+<input id="namaItem" placeholder="Nama item">
+</div>
+
+<input id="hargaItem" class="price-input" placeholder="Harga">
+
+<button class="icon-btn plus-btn" onclick="tambahItem()">✔</button>
+`;
+
+document.querySelector(".card").prepend(div);
 }
+
+// INSERT FORM
+function showInsertForm(index){
+let old=document.getElementById("insertForm");
+if(old) old.remove();
 
 let rows=document.querySelectorAll(".row");
 
 let form=document.createElement("div");
-
 form.className="row";
-
 form.id="insertForm";
 
 form.innerHTML=`
-
-<input
-type="text"
-id="insertNama"
-placeholder="Nama item baru"
->
-
-<input
-type="number"
-id="insertHarga"
-placeholder="Harga"
-class="price-input"
->
-
-<button
-class="btn-primary"
-style="width:90px;height:54px;padding:0;"
-onclick="sisipkanItem(${index})"
->
-Simpan
-</button>
-
+<input id="insertNama" placeholder="Nama">
+<input id="insertHarga" class="price-input" placeholder="Harga">
+<button class="btn-primary" style="width:80px" onclick="sisipkanItem(${index})">OK</button>
 `;
 
 rows[index].after(form);
-
-document.getElementById("insertNama").focus();
-
 }
 
-// SISIPKAN ITEM
-function sisipkanItem(index){
-
-let nama=document.getElementById("insertNama").value.trim();
-let harga=document.getElementById("insertHarga").value;
-
-if(!nama || !harga){
-alert("Isi nama dan harga");
-return;
-}
-
-db.ref("items").once("value").then(snap=>{
-
-let arr=[];
-
-snap.forEach(c=>{
-arr.push(c.val());
-});
-
-/* WAJIB URUTKAN DULU */
-arr.sort((a,b)=>(a.urutan||0)-(b.urutan||0));
-
-/* SISIPKAN DI POSISI YANG DIPILIH */
-arr.splice(index+1,0,{
-nama:nama,
-harga:Number(harga),
-urutan:0 // sementara
-});
-
-/* 🔥 RE-INDEX ULANG SEMUA ITEM */
-db.ref("items").remove().then(()=>{
-
-arr.forEach((item,i)=>{
-item.urutan = i + 1;   // INI YANG PENTING
-db.ref("items").push(item);
-});
-
-});
-
-});
-
-}
-
-// TAMBAH ITEM
+// FIREBASE FUNCTIONS (TETAP)
 function tambahItem(){
-
-let nama=document.getElementById("namaItem").value.trim();
-
+let nama=document.getElementById("namaItem").value;
 let harga=document.getElementById("hargaItem").value;
 
-if(!nama || !harga){
-
-alert("Isi nama dan harga");
-return;
-
-}
-
 db.ref("items").once("value").then(snap=>{
-
-let count = snap.numChildren();
-
 db.ref("items").push({
-nama:nama,
+nama,
 harga:Number(harga),
-urutan: count + 1
+urutan:snap.numChildren()+1
 });
-
 });
-document.getElementById("namaItem").value="";
-document.getElementById("hargaItem").value="";
-
 }
 
-// UPDATE HARGA
 function updateHarga(key,harga){
-
-db.ref("items/"+key+"/harga")
-.set(Number(harga));
-
+db.ref("items/"+key+"/harga").set(Number(harga));
 }
 
-// HAPUS
 function hapusItem(key){
-
-db.ref("items/"+key)
-.once("value")
-.then(snap=>{
-
-lastDeleted={
-key:key,
-value:snap.val()
-};
-
+db.ref("items/"+key).once("value").then(snap=>{
+lastDeleted={key,value:snap.val()};
 db.ref("items/"+key).remove();
-
 });
-
 }
 
-// UNDO
 function undo(){
-
-if(!lastDeleted){
-
-alert("Tidak ada item yang dihapus");
-return;
-
-}
-
-db.ref("items/"+lastDeleted.key)
-.set(lastDeleted.value);
-
+if(!lastDeleted) return alert("Tidak ada data");
+db.ref("items/"+lastDeleted.key).set(lastDeleted.value);
 lastDeleted=null;
-
 }
 
-// SAVE LABEL
 function saveLabel(){
-
-let val=document.getElementById("labelApp").value;
-
-db.ref("config/label").set(val);
-
-alert("Label disimpan");
-
+db.ref("config/label").set(document.getElementById("labelApp").value);
 }
 
-// SAVE THEME
 function saveTheme(){
-
-let primary=document.getElementById("colorPrimary").value;
-
-let bg=document.getElementById("colorBg").value;
-
 db.ref("config/theme").set({
-primary:primary,
-bg:bg
+primary:document.getElementById("colorPrimary").value,
+bg:document.getElementById("colorBg").value
 });
-
-alert("Warna disimpan");
-
 }
 
-// SAVE WA
 function saveWA(){
-
-let data={
-
-wa1:document.getElementById("wa1").value,
-wa2:document.getElementById("wa2").value,
-wa3:document.getElementById("wa3").value,
-wa4:document.getElementById("wa4").value
-
-};
-
-db.ref("config/wa").set(data);
-
-alert("Nomor WA disimpan");
-
-}
-
-// LOAD CONFIG
-function loadConfig(){
-
-db.ref("config").once("value",snap=>{
-
-let data=snap.val() || {};
-
-if(data.label){
-
-document.getElementById("labelApp").value=data.label;
-
-}
-
-if(data.theme){
-
-document.getElementById("colorPrimary").value=
-data.theme.primary || "#2563eb";
-
-document.getElementById("colorBg").value=
-data.theme.bg || "#0f172a";
-
-}
-
-if(data.wa){
-
-document.getElementById("wa1").value=data.wa.wa1 || "";
-document.getElementById("wa2").value=data.wa.wa2 || "";
-document.getElementById("wa3").value=data.wa.wa3 || "";
-document.getElementById("wa4").value=data.wa.wa4 || "";
-
-}
-
+db.ref("config/wa").set({
+wa1:wa1.value,wa2:wa2.value,wa3:wa3.value,wa4:wa4.value
 });
-
 }
 
-// BACK
 function kembali(){
-
 window.location.href="index.html";
-
 }
 
-// INIT
 window.onload=function(){
-
 loadItems();
-loadConfig();
-
 }
 
 </script>
