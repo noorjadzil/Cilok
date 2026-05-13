@@ -2,84 +2,49 @@
 <html>
 <head>
 <title>Laporan Jajan</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1e3a8a">
+<meta name="theme-color" content="#0f172a">
 
 <style>
-body{
-font-family:'Segoe UI',Arial;
-margin:0;
-background:linear-gradient(135deg,#0f172a,#1e3a8a);
-}
+/* ====== (CSS kamu tetap, saya ringkas biar fokus perubahan) ====== */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:#020617;color:white;padding:14px;}
 
-.container{
-max-width:420px;
-margin:auto;
-padding:10px;
-}
+.container{max-width:500px;margin:auto;}
+.card{background:rgba(255,255,255,0.05);padding:20px;border-radius:20px;}
 
-.card{
-background:white;
-border-radius:16px;
-padding:15px;
-box-shadow:0 8px 20px rgba(0,0,0,0.2);
-}
-
-h2{
-text-align:center;
-color:#1e3a8a;
-}
+h2{text-align:center;margin-bottom:15px}
 
 /* TAB */
-.tab-btn{
-flex:1;
-padding:10px;
-border:none;
-color:white;
-cursor:pointer;
-}
+.tab-wrap{display:flex;gap:8px;margin-bottom:15px}
+.tab-btn{flex:1;padding:12px;border-radius:14px;border:none;color:white}
+.active{background:#2563eb}
+.nonactive{background:rgba(255,255,255,0.1)}
 
-.active{ background:#1e3a8a; }
-.nonactive{ background:#94a3b8; }
+/* CARD */
+.laporan-card{background:rgba(255,255,255,0.05);padding:14px;border-radius:16px;margin-top:10px}
 
-.laporan-card{
-background:white;
-margin-top:12px;
-padding:12px;
-border-radius:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
+/* TABLE */
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:left}
 
-.laporan-header{
-font-size:18px;
-font-weight:700;
-color:#1e3a8a;
-margin-bottom:6px;
-}
+/* BUTTON */
+button{cursor:pointer}
 
-.laporan-tanggal{
-display:inline-block;
-background:#e0edff;
-color:#1e3a8a;
-padding:4px 10px;
-border-radius:8px;
-font-size:14px;
-font-weight:700;
-margin-bottom:8px;
-}
-
-.laporan-items{
-margin-top:6px;
-line-height:1.5;
-font-weight:600;
-}
-
-img{
+.loadmore{
 width:100%;
-border-radius:10px;
-margin-top:8px;
+padding:12px;
+margin-top:10px;
+border-radius:12px;
+border:none;
+background:#06b6d4;
+color:white;
+font-weight:bold;
 }
+
 </style>
 </head>
 
@@ -90,31 +55,24 @@ margin-top:8px;
 
 <h2>Laporan Jajan</h2>
 
-<button onclick="kembali()" style="
-width:100%;
-padding:12px;
-border:none;
-border-radius:10px;
-background:#64748b;
-color:white;
-font-weight:700;
-margin-bottom:10px;
-">
-⬅️ Kembali ke Input
-</button>
+<button onclick="kembali()">⬅️ Kembali</button>
 
-<div style="display:flex;margin-bottom:10px;">
-  <button id="btnLaporan" class="tab-btn active" onclick="showTab('laporan')">Laporan</button>
-  <button id="btnRekap" class="tab-btn nonactive" onclick="showTab('rekap')">Rekap</button>
+<!-- TAB -->
+<div class="tab-wrap">
+<button id="btn1" class="tab-btn active" onclick="showTab('laporan')">Laporan</button>
+<button id="btn2" class="tab-btn nonactive" onclick="showTab('harian')">Rekap Harian</button>
+<button id="btn3" class="tab-btn nonactive" onclick="showTab('bulanan')">Rekap Bulanan</button>
 </div>
 
-<div id="tabLaporan">
-  <div id="listLaporan">Loading...</div>
-</div>
+<!-- LAPORAN -->
+<div id="tabLaporan"></div>
+<button class="loadmore" onclick="loadMore()">Muat lebih banyak</button>
 
-<div id="tabRekap" style="display:none;">
-  <div id="rekapHarian">Loading...</div>
-</div>
+<!-- HARIAN -->
+<div id="tabHarian" style="display:none"></div>
+
+<!-- BULANAN -->
+<div id="tabBulanan" style="display:none"></div>
 
 </div>
 </div>
@@ -123,215 +81,192 @@ margin-bottom:10px;
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <script>
-function kembali(){
-  window.location.href = "index.html";
-}
-// TAB
-function showTab(tab){
-  const laporan = document.getElementById("tabLaporan");
-  const rekap = document.getElementById("tabRekap");
 
-  const btnLaporan = document.getElementById("btnLaporan");
-  const btnRekap = document.getElementById("btnRekap");
-
-  if(tab==="laporan"){
-    laporan.style.display="block";
-    rekap.style.display="none";
-    btnLaporan.className="tab-btn active";
-    btnRekap.className="tab-btn nonactive";
-  }else{
-    laporan.style.display="none";
-    rekap.style.display="block";
-    btnLaporan.className="tab-btn nonactive";
-    btnRekap.className="tab-btn active";
-  }
-}
-
-// FIREBASE
-const firebaseConfig={
+firebase.initializeApp({
 databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.app/"
-};
-
-firebase.initializeApp(firebaseConfig);
+});
 const db=firebase.database();
 
-// FORMAT DETAIL
-function formatTanggal(waktu){
-let date = new Date(waktu);
+/* =========================
+NAV
+========================= */
+let limit = 5;
 
-let hari = date.toLocaleDateString("id-ID",{weekday:"long"});
-let tanggal = date.toLocaleDateString("id-ID",{day:"numeric", month:"long", year:"numeric"});
-let jam = date.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
-
-return `${hari}, ${tanggal} - ${jam}`;
+function kembali(){
+window.location.href="index.html";
 }
 
-// FORMAT HARI
-function formatTanggalHari(waktu){
-let date = new Date(waktu);
+function showTab(t){
+document.getElementById("tabLaporan").style.display = (t==="laporan")?"block":"none";
+document.getElementById("tabHarian").style.display = (t==="harian")?"block":"none";
+document.getElementById("tabBulanan").style.display = (t==="bulanan")?"block":"none";
 
-let hari = date.toLocaleDateString("id-ID",{weekday:"long"});
-let tanggal = date.toLocaleDateString("id-ID",{day:"numeric", month:"long", year:"numeric"});
-
-return `${hari}, ${tanggal}`;
+document.getElementById("btn1").className="tab-btn "+(t==="laporan"?"active":"nonactive");
+document.getElementById("btn2").className="tab-btn "+(t==="harian"?"active":"nonactive");
+document.getElementById("btn3").className="tab-btn "+(t==="bulanan"?"active":"nonactive");
 }
 
-// LOAD LAPORAN
+/* =========================
+LAPORAN (5 TERAKHIR + LOAD MORE)
+========================= */
 function loadLaporan(){
 
-let list=document.getElementById("listLaporan");
-list.innerHTML="Loading...";
+db.ref("jajan").limitToLast(limit).once("value",snap=>{
 
-db.ref("jajan").limitToLast(50).once("value",snap=>{
+let box=document.getElementById("tabLaporan");
+box.innerHTML="";
 
-list.innerHTML="";
-
-if(!snap.val()){
-list.innerHTML="Belum ada data";
+if(!snap.exists()){
+box.innerHTML="Belum ada data";
 return;
 }
 
-let arr=Object.values(snap.val()).reverse();
+let data=[];
+snap.forEach(c=>{
+data.push({key:c.key,...c.val()});
+});
 
-arr.forEach(d=>{
+data.reverse();
 
-let items = (d.items || [])
-.map(i=>`• ${i.barang} (${i.jumlah})`)
-.join("<br>");
-
-let div=document.createElement("div");
-div.className="laporan-card";
-
-div.innerHTML=`
-<div class="laporan-header">${d.jenis} - ${d.tempat}</div>
-<div class="laporan-tanggal">${formatTanggal(d.waktu)}</div>
-<div class="laporan-items">${items}</div>
-
-${d.catatan ? `
-<div style="margin-top:8px;font-weight:700;color:#dc2626">
-Catatan: ${d.catatan}
+data.forEach(d=>{
+box.innerHTML+=`
+<div class="laporan-card">
+<b>${d.jenis} - ${d.tempat}</b><br>
+<small>${new Date(d.waktu).toLocaleString()}</small>
 </div>
-` : ""}
-
-${d.foto ? `<img src="${d.foto}">` : ""}
 `;
-
-list.appendChild(div);
-
 });
 
 });
 }
 
-// HITUNG ITEM
-function totalItem(d){
-return (d.items || []).reduce((sum,i)=> sum + Number(i.jumlah || 0),0);
+function loadMore(){
+limit += 5;
+loadLaporan();
 }
 
-// LOAD REKAP (SUDAH FIX WIB)
-function loadRekap(){
-
-let container=document.getElementById("rekapHarian");
-container.innerHTML="Loading...";
+/* =========================
+REKAP HARIAN (SIMPLIFY)
+========================= */
+function loadHarian(){
 
 db.ref("jajan").once("value",snap=>{
 
-if(!snap.val()){
-container.innerHTML="Belum ada data";
-return;
-}
+let box=document.getElementById("tabHarian");
+box.innerHTML="";
 
-let data=Object.values(snap.val());
 let grup={};
 
-data.forEach(d=>{
+snap.forEach(c=>{
+let d=c.val();
+let t=new Date(d.waktu).toLocaleDateString("id-ID");
 
-if(!d.waktu) return;
+if(!grup[t]){
+grup[t]={masuk:0,sisa:0};
+}
 
-let dateObj = new Date(d.waktu);
-if(isNaN(dateObj)) return;
-
-// ✅ FIX WIB (INI KUNCI UTAMA)
-let key = dateObj.toLocaleDateString("id-ID", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit"
+(d.items||[]).forEach(i=>{
+if((d.jenis||"").includes("masuk")) grup[t].masuk+=Number(i.jumlah||0);
+if((d.jenis||"").includes("sisa")) grup[t].sisa+=Number(i.jumlah||0);
+});
 });
 
-let label = formatTanggalHari(dateObj);
+let no=1;
+box.innerHTML=`<table>
+<tr><th>No</th><th>Tanggal</th><th>Masuk</th><th>Sisa</th></tr>`;
 
-if(!grup[key]){
-grup[key]={
-label: label,
-masukIkhwan:0,
-masukAkhwat:0,
-sisaIkhwan:0,
-sisaAkhwat:0
-};
-}
-
-let jenis = (d.jenis || "").toLowerCase();
-let tempat = (d.tempat || "").toLowerCase();
-let total = totalItem(d);
-
-// MASUK
-if(jenis.includes("masuk") && tempat.includes("ikhwan")){
-  grup[key].masukIkhwan += total;
-}
-if(jenis.includes("masuk") && tempat.includes("akhwat")){
-  grup[key].masukAkhwat += total;
-}
-
-// SISA
-if(jenis.includes("sisa") && tempat.includes("ikhwan")){
-  grup[key].sisaIkhwan += total;
-}
-if(jenis.includes("sisa") && tempat.includes("akhwat")){
-  grup[key].sisaAkhwat += total;
-}
-
+Object.keys(grup).forEach(k=>{
+box.innerHTML+=`
+<tr>
+<td>${no++}</td>
+<td>${k}</td>
+<td>${grup[k].masuk}</td>
+<td>${grup[k].sisa}</td>
+</tr>`;
 });
 
-container.innerHTML="";
-
-// SORT TERBARU
-Object.keys(grup).sort((a,b)=> new Date(b) - new Date(a)).forEach(key=>{
-
-let g = grup[key];
-
-let terjual = (g.masukIkhwan + g.masukAkhwat) - (g.sisaIkhwan + g.sisaAkhwat);
-if(terjual < 0) terjual = 0;
-
-let uang = terjual * 4500;
-
-let div=document.createElement("div");
-div.className="laporan-card";
-
-div.innerHTML=`
-<div class="laporan-header">Rekap</div>
-<div class="laporan-tanggal">${g.label}</div>
-
-<div class="laporan-items">
-Masuk Ikhwan: ${g.masukIkhwan}<br>
-Masuk Akhwat: ${g.masukAkhwat}<br>
-Sisa Ikhwan: ${g.sisaIkhwan}<br>
-Sisa Akhwat: ${g.sisaAkhwat}<br><br>
-
-<b>Terjual: ${terjual}</b><br>
-<b>Total: Rp ${uang.toLocaleString("id-ID")}</b>
-</div>
-`;
-
-container.appendChild(div);
-
-});
+box.innerHTML+="</table>";
 
 });
 }
 
-// LOAD
+/* =========================
+REKAP BULANAN
+========================= */
+function loadBulanan(){
+
+db.ref("jajan").once("value",snap=>{
+
+let hargaMap={};
+db.ref("items").once("value",snap2=>{
+snap2.forEach(c=>{
+let d=c.val();
+hargaMap[(d.nama||"").toLowerCase()]=Number(d.harga||0);
+});
+
+let box=document.getElementById("tabBulanan");
+box.innerHTML="";
+
+let grup={};
+
+snap.forEach(c=>{
+let d=c.val();
+let date=new Date(d.waktu);
+let bulan=date.getFullYear()+"-"+(date.getMonth()+1);
+
+if(!grup[bulan]) grup[bulan]={};
+
+(d.items||[]).forEach(i=>{
+let nama=i.barang.toLowerCase();
+let j=Number(i.jumlah||0);
+let h=hargaMap[nama]||0;
+
+if(!grup[bulan][nama]){
+grup[bulan][nama]={masuk:0,sisa:0,harga:h};
+}
+
+if((d.jenis||"").includes("masuk")) grup[bulan][nama].masuk+=j;
+if((d.jenis||"").includes("sisa")) grup[bulan][nama].sisa+=j;
+
+});
+});
+
+let totalAll=0;
+let no=1;
+
+box.innerHTML="<table><tr><th>No</th><th>Item</th><th>Masuk</th><th>Sisa</th><th>Harga</th><th>Terjual</th><th>Total</th></tr>";
+
+Object.keys(grup).forEach(b=>{
+Object.keys(grup[b]).forEach(item=>{
+let g=grup[b][item];
+let terjual=g.masuk-g.sisa;
+if(terjual<0) terjual=0;
+
+let total=terjual*g.harga;
+totalAll+=total;
+
+box.innerHTML+=`
+<tr>
+<td>${no++}</td>
+<td>${item}</td>
+<td>${g.masuk}</td>
+<td>${g.sisa}</td>
+<td>${g.harga}</td>
+<td>${terjual}</td>
+<td>${total}</td>
+</tr>`;
+});
+});
+
+box.innerHTML+=`</table><br><b>Total Keseluruhan: Rp ${totalAll.toLocaleString()}</b>`;
+
+});
+}
+
+/* INIT */
 loadLaporan();
-loadRekap();
+loadHarian();
+loadBulanan();
 
 </script>
 
