@@ -407,16 +407,11 @@ const db=firebase.database();
 
 let lastDeleted=null;
 
+
 // LOAD ITEM
 function loadItems(){
 
 let list=document.getElementById("listItem");
-
-list.innerHTML=`
-<div class="loading">
-Loading...
-</div>
-`;
 
 db.ref("items").on("value",snap=>{
 
@@ -434,10 +429,21 @@ return;
 
 }
 
+let items=[];
+
 snap.forEach(c=>{
 
-let key=c.key;
-let data=c.val();
+items.push({
+key:c.key,
+data:c.val()
+});
+
+});
+
+items.forEach((item,index)=>{
+
+let key=item.key;
+let data=item.data;
 
 let nama=data.nama || data;
 let harga=data.harga || 0;
@@ -468,6 +474,13 @@ onchange="updateHarga('${key}',this.value)"
 >
 
 <button
+class="plus-btn"
+onclick="showInsertForm(${index})"
+>
++
+</button>
+
+<button
 class="delete-btn"
 onclick="hapusItem('${key}')"
 >
@@ -477,6 +490,98 @@ onclick="hapusItem('${key}')"
 `;
 
 list.appendChild(div);
+
+});
+
+});
+
+}
+
+// TAMPILKAN FORM INSERT
+function showInsertForm(index){
+
+// hapus form lama
+let old=document.getElementById("insertForm");
+
+if(old){
+old.remove();
+}
+
+let rows=document.querySelectorAll(".row");
+
+let form=document.createElement("div");
+
+form.className="row";
+
+form.id="insertForm";
+
+form.innerHTML=`
+
+<input
+type="text"
+id="insertNama"
+placeholder="Nama item baru"
+>
+
+<input
+type="number"
+id="insertHarga"
+placeholder="Harga"
+class="price-input"
+>
+
+<button
+class="btn-primary"
+style="width:90px;height:54px;padding:0;"
+onclick="sisipkanItem(${index})"
+>
+Simpan
+</button>
+
+`;
+
+rows[index].after(form);
+
+document.getElementById("insertNama").focus();
+
+}
+
+// SISIPKAN ITEM
+function sisipkanItem(index){
+
+let nama=document.getElementById("insertNama").value.trim();
+
+let harga=document.getElementById("insertHarga").value;
+
+if(!nama || !harga){
+
+alert("Isi nama dan harga");
+return;
+
+}
+
+db.ref("items").once("value").then(snap=>{
+
+let arr=[];
+
+snap.forEach(c=>{
+
+arr.push(c.val());
+
+});
+
+arr.splice(index+1,0,{
+nama:nama,
+harga:Number(harga)
+});
+
+db.ref("items").remove().then(()=>{
+
+arr.forEach(item=>{
+
+db.ref("items").push(item);
+
+});
 
 });
 
@@ -505,6 +610,46 @@ harga:Number(harga)
 
 document.getElementById("namaItem").value="";
 document.getElementById("hargaItem").value="";
+
+}
+
+// SISIPKAN ITEM
+function sisipkanItem(index){
+
+let nama=prompt("Nama item baru");
+
+if(!nama) return;
+
+let harga=prompt("Harga item");
+
+if(!harga) return;
+
+db.ref("items").once("value").then(snap=>{
+
+let arr=[];
+
+snap.forEach(c=>{
+
+arr.push(c.val());
+
+});
+
+arr.splice(index+1,0,{
+nama:nama,
+harga:Number(harga)
+});
+
+db.ref("items").remove().then(()=>{
+
+arr.forEach(item=>{
+
+db.ref("items").push(item);
+
+});
+
+});
+
+});
 
 }
 
