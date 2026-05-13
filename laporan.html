@@ -1,64 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Laporan Jajan</title>
+<title>Laporan Jajan Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{font-family:Segoe UI;background:#020617;color:#fff;padding:14px}
-.container{max-width:700px;margin:auto}
-.card{background:rgba(255,255,255,0.06);padding:16px;border-radius:14px}
-
-.tab{display:flex;gap:6px;margin:10px 0}
-.tab button{flex:1;padding:10px;border:none;border-radius:10px;color:white;cursor:pointer}
-.active{background:#2563eb}
-.nonactive{background:rgba(255,255,255,0.1)}
-
-.laporan-card{background:rgba(255,255,255,0.05);padding:12px;border-radius:12px;margin-top:10px}
-
-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}
-th,td{border-bottom:1px solid #333;padding:6px;text-align:center}
-
-.loadmore{
-width:100%;
-padding:10px;
-margin-top:10px;
-border:none;
-border-radius:10px;
-background:#06b6d4;
-font-weight:bold;
-cursor:pointer;
+body{
+margin:0;
+font-family:Segoe UI;
+background:#0b1220;
+color:#fff;
 }
 
-.sticky{
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:14px;
+background:#111827;
 position:sticky;
-left:0;
-background:#0b1220;
-font-weight:bold;
+top:0;
+z-index:10;
+}
+
+.header a{
+color:#fff;
+text-decoration:none;
+background:#2563eb;
+padding:6px 10px;
+border-radius:8px;
+font-size:13px;
+}
+
+.container{max-width:1000px;margin:auto;padding:12px}
+
+.tab{
+display:flex;
+gap:6px;
+margin-top:10px;
+}
+
+.tab button{
+flex:1;
+padding:10px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+color:#fff;
+}
+
+.active{background:#2563eb}
+.nonactive{background:#1f2937}
+
+.card{
+background:#111827;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:12px;
+margin-top:10px;
+}
+
+th,td{
+border-bottom:1px solid #1f2937;
+padding:6px;
+text-align:center;
+white-space:nowrap;
+}
+
+.scroll{overflow-x:auto}
+
+.badge{
+display:inline-block;
+padding:3px 8px;
+border-radius:999px;
+background:#1f2937;
+font-size:11px;
+margin-left:6px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-<div class="card">
+<div class="header">
+<div><b>📊 Laporan Jajan</b></div>
+<a href="index.html">⬅ Kembali</a>
+</div>
 
-<h2>Laporan Jajan</h2>
+<div class="container">
 
 <div class="tab">
 <button id="b1" class="active" onclick="showTab('laporan')">Laporan</button>
-<button id="b2" class="nonactive" onclick="showTab('harian')">Rekap Harian</button>
-<button id="b3" class="nonactive" onclick="showTab('bulanan')">Rekap Bulanan</button>
+<button id="b2" class="nonactive" onclick="showTab('harian')">Harian</button>
+<button id="b3" class="nonactive" onclick="showTab('bulanan')">Bulanan</button>
 </div>
 
-<div id="laporan"></div>
-<button class="loadmore" onclick="loadMore()">Muat Lagi</button>
+<div id="laporan" class="card"></div>
 
-<div id="harian" style="display:none"></div>
-<div id="bulanan" style="display:none"></div>
+<button onclick="loadMore()" style="width:100%;padding:10px;margin-top:10px;border:none;border-radius:10px;background:#06b6d4">
+Muat Lagi
+</button>
 
-</div>
+<div id="harian" class="card" style="display:none"></div>
+<div id="bulanan" class="card" style="display:none"></div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -72,7 +123,36 @@ databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.a
 
 const db=firebase.database();
 
-let limit=5;
+let limit=8;
+
+/* ================= AMAN PARSER (INI KUNCI FIX) ================= */
+function norm(t){
+return (t||"").toString().toLowerCase().trim();
+}
+
+function detectType(t){
+t = norm(t);
+if(t.includes("masuk")) return "masuk";
+if(t.includes("retur")) return "retur";
+if(t.includes("sisa")) return "retur";
+return "unknown";
+}
+
+function getDateKey(t){
+let d=new Date(t);
+return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
+}
+
+function getMonthKey(t){
+let d=new Date(t);
+return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0');
+}
+
+function monthName(m){
+const nama=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+let [y,mm]=m.split("-");
+return nama[parseInt(mm)-1]+" "+y;
+}
 
 /* ================= TAB ================= */
 function showTab(t){
@@ -84,12 +164,6 @@ document.getElementById("bulanan").style.display=(t==="bulanan")?"block":"none";
 document.getElementById("b1").className=(t==="laporan")?"active":"nonactive";
 document.getElementById("b2").className=(t==="harian")?"active":"nonactive";
 document.getElementById("b3").className=(t==="bulanan")?"active":"nonactive";
-
-}
-
-/* ================= NORMAL ================= */
-function norm(t){
-return (t||"").toString().trim().toLowerCase();
 }
 
 /* ================= LAPORAN ================= */
@@ -107,15 +181,17 @@ return;
 
 let arr=[];
 snap.forEach(c=>arr.push(c.val()));
-
 arr.reverse();
 
 arr.forEach(d=>{
-let items=(d.items||[]).map(i=>`• ${i.barang} = ${i.jumlah}`).join("<br>");
+
+let items=(d.items||[]).map(i=>{
+return `• ${i.barang} = ${i.jumlah}`;
+}).join("<br>");
 
 box.innerHTML+=`
-<div class="laporan-card">
-<b>${d.jenis} - ${d.tempat}</b><br>
+<div class="card">
+<b>${d.jenis}</b><br>
 <small>${new Date(d.waktu).toLocaleString()}</small>
 <br><br>
 ${items}
@@ -131,82 +207,65 @@ limit+=5;
 loadLaporan();
 }
 
-/* ================= HARIAN (PIVOT RAPI) ================= */
+/* ================= HARIAN ================= */
 function loadHarian(){
 
 db.ref("jajan").once("value",snap=>{
 
-let box=document.getElementById("harian");
-
 let data={};
 let tanggalSet=new Set();
 
-/* kumpulkan */
 snap.forEach(c=>{
 let d=c.val();
-let tgl=new Date(d.waktu).getDate();
+let tgl=getDateKey(d.waktu);
 tanggalSet.add(tgl);
+
+let type=detectType(d.jenis);
 
 (d.items||[]).forEach(i=>{
 
-let item=i.barang;
+let nama=i.barang;
 let j=Number(i.jumlah||0);
 
-if(!data[item]) data[item]={};
-if(!data[item][tgl]) data[item][tgl]={masuk:0,retur:0};
+if(!data[nama]) data[nama]={};
+if(!data[nama][tgl]) data[nama][tgl]={masuk:0,retur:0};
 
-let jenis=norm(d.jenis);
-
-if(jenis.includes("masuk")) data[item][tgl].masuk+=j;
-if(jenis.includes("sisa")||jenis.includes("retur")) data[item][tgl].retur+=j;
+if(type==="masuk") data[nama][tgl].masuk+=j;
+if(type==="retur") data[nama][tgl].retur+=j;
 
 });
 });
 
-let tglArr=[...tanggalSet].sort((a,b)=>a-b);
+let tglArr=[...tanggalSet].sort();
 
-/* table */
-let html=`
-<div style="overflow-x:auto">
-<table>
-<thead>
-<tr>
-<th rowspan="2" class="sticky">Item</th>
-<th rowspan="2">Type</th>`;
+let html=`<div class="scroll"><table><thead><tr><th>Item</th><th>Type</th>`;
 
-tglArr.forEach(t=>html+=`<th>${t}</th>`);
+tglArr.forEach(t=>{
+html+=`<th>${t.split("-")[2]}</th>`;
+});
 
 html+=`</tr></thead><tbody>`;
 
-/* isi */
 Object.keys(data).forEach(item=>{
 
-/* MASUK */
-html+=`
-<tr>
-<td rowspan="2" class="sticky" style="text-align:center;vertical-align:middle">${item}</td>
-<td>Masuk</td>`;
+html+=`<tr><td rowspan="2"><b>${item}</b></td><td>Masuk</td>`;
 
 tglArr.forEach(t=>{
 html+=`<td>${data[item][t]?.masuk||0}</td>`;
 });
 
-html+=`</tr>`;
-
-/* RETUR */
-html+=`
-<tr>
-<td>Retur</td>`;
+html+=`</tr><tr><td>Retur</td>`;
 
 tglArr.forEach(t=>{
 html+=`<td>${data[item][t]?.retur||0}</td>`;
 });
 
 html+=`</tr>`;
-
 });
 
-box.innerHTML=html+"</tbody></table></div>";
+html+=`</tbody></table></div>`;
+
+document.getElementById("harian").innerHTML=html;
 
 });
 
@@ -226,15 +285,15 @@ harga[norm(d.nama)] = Number(d.harga||0);
 
 db.ref("jajan").once("value",snap=>{
 
-let box=document.getElementById("bulanan");
-
 let grup={};
 
 snap.forEach(c=>{
 let d=c.val();
-let bulan=new Date(d.waktu).getFullYear()+"-"+(new Date(d.waktu).getMonth()+1);
+let bulan=getMonthKey(d.waktu);
 
 if(!grup[bulan]) grup[bulan]={};
+
+let type=detectType(d.jenis);
 
 (d.items||[]).forEach(i=>{
 
@@ -245,51 +304,47 @@ if(!grup[bulan][nama]){
 grup[bulan][nama]={masuk:0,retur:0,harga:harga[nama]||0};
 }
 
-let jenis=norm(d.jenis);
-
-if(jenis.includes("masuk")) grup[bulan][nama].masuk+=j;
-if(jenis.includes("sisa")||jenis.includes("retur")) grup[bulan][nama].retur+=j;
+if(type==="masuk") grup[bulan][nama].masuk+=j;
+if(type==="retur") grup[bulan][nama].retur+=j;
 
 });
 
 });
 
-let no=1;
-let total=0;
-
-let html=`
-<table>
-<tr>
-<th>No</th><th>Item</th><th>Masuk</th><th>Sisa/Retur</th>
-<th>Harga</th><th>Terjual</th><th>Total</th>
-</tr>`;
+let html="";
 
 Object.keys(grup).forEach(b=>{
+
+let total=0;
+
+html+=`<h3>${monthName(b)} <span class="badge">Monthly</span></h3>
+<div class="scroll"><table>
+<tr>
+<th>Item</th><th>Masuk</th><th>Retur</th><th>Terjual</th><th>Total</th>
+</tr>`;
+
 Object.keys(grup[b]).forEach(item=>{
 
 let g=grup[b][item];
-let terjual=g.masuk-g.retur;
-if(terjual<0) terjual=0;
-
+let terjual=Math.max(g.masuk-g.retur,0);
 let tot=terjual*g.harga;
 total+=tot;
 
 html+=`
 <tr>
-<td>${no++}</td>
 <td>${item}</td>
 <td>${g.masuk}</td>
 <td>${g.retur}</td>
-<td>${g.harga}</td>
 <td>${terjual}</td>
 <td>${tot}</td>
 </tr>`;
 });
 
+html+=`</table></div>
+<b>Total ${monthName(b)}: Rp ${total.toLocaleString("id-ID")}</b><br><br>`;
 });
 
-box.innerHTML=html+`</table><br>
-<b>Total: Rp ${total.toLocaleString("id-ID")}</b>`;
+document.getElementById("bulanan").innerHTML=html;
 
 });
 
