@@ -3,18 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>MAQSHOF</title>
 
 <link rel="manifest" href="manifest.json">
 
 <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
 
 body{
 font-family:'Segoe UI',sans-serif;
@@ -25,8 +20,7 @@ overflow-x:hidden;
 }
 
 .bg{
-position:fixed;
-inset:0;
+position:fixed;inset:0;
 background:
 radial-gradient(circle at top left,#2563eb55,transparent 35%),
 radial-gradient(circle at bottom right,#06b6d455,transparent 35%),
@@ -34,55 +28,28 @@ linear-gradient(135deg,#020617,#0f172a,#111827);
 z-index:-2;
 }
 
-.blur1,
-.blur2{
-position:fixed;
-border-radius:50%;
-filter:blur(90px);
-z-index:-1;
+.blur1,.blur2{
+position:fixed;border-radius:50%;
+filter:blur(90px);z-index:-1;
 }
 
-.blur1{
-width:250px;
-height:250px;
-background:#2563eb55;
-top:-50px;
-left:-50px;
-}
-
-.blur2{
-width:250px;
-height:250px;
-background:#06b6d455;
-bottom:-50px;
-right:-50px;
-}
+.blur1{width:250px;height:250px;background:#2563eb55;top:-50px;left:-50px;}
+.blur2{width:250px;height:250px;background:#06b6d455;bottom:-50px;right:-50px;}
 
 .header{
-padding:30px 20px 10px;
-text-align:center;
+padding:30px 20px 10px;text-align:center;
 }
 
 .logo{
-font-size:34px;
-font-weight:900;
-letter-spacing:4px;
+font-size:34px;font-weight:900;letter-spacing:4px;
 background:linear-gradient(90deg,#60a5fa,#22d3ee);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
 
-.sub{
-margin-top:8px;
-font-size:14px;
-color:#94a3b8;
-}
+.sub{margin-top:8px;font-size:14px;color:#94a3b8;}
 
-.container{
-max-width:480px;
-margin:auto;
-padding:15px;
-}
+.container{max-width:480px;margin:auto;padding:15px;}
 
 .card{
 background:rgba(255,255,255,0.06);
@@ -90,37 +57,23 @@ backdrop-filter:blur(20px);
 border:1px solid rgba(255,255,255,0.08);
 border-radius:28px;
 padding:22px;
-box-shadow:
-0 10px 40px rgba(0,0,0,0.35),
-inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .section-title{
-font-size:13px;
-font-weight:700;
-letter-spacing:1px;
-color:#94a3b8;
-margin-bottom:10px;
-margin-top:20px;
+font-size:13px;font-weight:700;
+letter-spacing:1px;color:#94a3b8;
+margin:20px 0 10px;
 text-transform:uppercase;
 }
 
-.input-group{
-margin-bottom:18px;
-}
+.input-group{margin-bottom:18px;}
 
 label{
-display:block;
-margin-bottom:8px;
-font-size:13px;
-font-weight:700;
-color:#cbd5e1;
+display:block;margin-bottom:8px;
+font-size:13px;font-weight:700;color:#cbd5e1;
 }
 
-select,
-textarea,
-input[type="number"],
-input[type="date"]{
+input,textarea,select{
 width:100%;
 background:rgba(255,255,255,0.06);
 border:1px solid rgba(255,255,255,0.08);
@@ -129,39 +82,23 @@ padding:15px;
 font-size:15px;
 color:white;
 outline:none;
-transition:0.25s;
 }
 
-select:focus,
-textarea:focus,
-input:focus{
-border-color:#38bdf8;
-box-shadow:0 0 0 4px rgba(56,189,248,0.15);
-}
-
-option{
-background:#0f172a;
-}
-
-textarea{
-resize:none;
-min-height:100px;
-}
+textarea{resize:none;min-height:100px;}
 
 .item-row{
 display:flex;
-align-items:center;
 gap:10px;
-margin-bottom:12px;
 padding:12px;
+margin-bottom:12px;
 border-radius:18px;
 background:rgba(255,255,255,0.04);
 border:1px solid rgba(255,255,255,0.06);
+align-items:center;
 }
 
 .item-name{
 flex:2;
-font-size:15px;
 font-weight:600;
 color:#e2e8f0;
 }
@@ -180,13 +117,11 @@ border-radius:20px;
 font-size:15px;
 font-weight:800;
 cursor:pointer;
-transition:0.25s;
 color:white;
 }
 
 .primary-btn{
 background:linear-gradient(135deg,#2563eb,#06b6d4);
-box-shadow:0 10px 30px rgba(37,99,235,0.35);
 }
 
 .secondary-btn{
@@ -216,7 +151,6 @@ color:#64748b;
 </div>
 
 <div class="container">
-
 <div class="card">
 
 <div class="section-title">Informasi</div>
@@ -227,186 +161,111 @@ color:#64748b;
 </div>
 
 <div class="input-group">
-<label>Jenis Data</label>
-<select id="jenis">
-<option value="Masuk">Masuk</option>
-<option value="Sisa">Sisa</option>
-</select>
-</div>
-
-<div class="input-group">
 <label>Lokasi</label>
 <select id="tempat" disabled>
-<option selected>Ikhwan</option>
+<option>Ikhwan</option>
 </select>
 </div>
 
 <div class="section-title">Input Item</div>
-
 <div id="itemsContainer"></div>
 
 <div class="section-title">Catatan</div>
+<textarea id="catatan" placeholder="Tambahkan catatan..."></textarea>
 
-<div class="input-group">
-<textarea id="catatan" placeholder="Tambahkan catatan tambahan..."></textarea>
-</div>
+<button class="primary-btn" onclick="kirim()">💾 Simpan Data</button>
 
-<button class="primary-btn" onclick="kirim()">
-💾 Simpan Data
-</button>
+<button class="secondary-btn" onclick="location.href='laporan.html'">📊 Laporan</button>
 
-<button class="secondary-btn" onclick="location.href='laporan.html'">
-📊 Laporan
-</button>
-
-<button class="secondary-btn" onclick="location.href='setting.html'">
-⚙️ Pengaturan
-</button>
+<button class="secondary-btn" onclick="location.href='setting.html'">⚙️ Pengaturan</button>
 
 </div>
 
-<div class="footer">
-MAQSHOF • Modern Dashboard System
+<div class="footer">MAQSHOF • Modern Dashboard System</div>
 </div>
 
-</div>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <script>
 
-let daftarItems=[];
+// INIT
+firebase.initializeApp({
+databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.app/"
+});
 
-// SET TANGGAL HARI INI
-document.getElementById("tanggal").value =
-new Date().toISOString().split("T")[0];
+const db = firebase.database();
+
+let daftarItems = [];
 
 // LOAD ITEMS
 function loadItems(){
-
 db.ref("items").once("value",snap=>{
-
-daftarItems=[];
-
+daftarItems = [];
 snap.forEach(c=>{
-
-let data=c.val();
-
-let nama=data.nama || data;
-
-daftarItems.push(nama);
-
+let d = c.val();
+daftarItems.push(d.nama || d);
 });
-
 renderItems();
-
 });
-
 }
 
-// RENDER ITEMS LANGSUNG
+// RENDER
 function renderItems(){
-
-let container=document.getElementById("itemsContainer");
-
-container.innerHTML="";
+let c = document.getElementById("itemsContainer");
+c.innerHTML = "";
 
 daftarItems.forEach(item=>{
-
-let div=document.createElement("div");
-
-div.className="item-row";
-
-div.innerHTML=`
-
+c.innerHTML += `
+<div class="item-row">
 <div class="item-name">${item}</div>
-
-<input 
-type="number"
-class="jumlah"
-data-item="${item}"
-placeholder="0">
-
-`;
-
-container.appendChild(div);
-
+<input type="number" class="masuk" data-item="${item}" placeholder="Masuk">
+<input type="number" class="sisa" data-item="${item}" placeholder="Sisa">
+</div>`;
 });
-
 }
 
 // SIMPAN
 async function kirim(){
 
-let items=[];
+let hasil = {};
 
-// AMBIL ITEM
-document.querySelectorAll(".jumlah").forEach(input=>{
-
-let jumlah=input.value;
-let barang=input.dataset.item;
-
-if(jumlah && jumlah != 0){
-
-items.push({
-barang:barang,
-jumlah:Number(jumlah)
+document.querySelectorAll(".masuk").forEach(i=>{
+let item = i.dataset.item;
+if(!hasil[item]) hasil[item]={barang:item,masuk:0,sisa:0};
+hasil[item].masuk = Number(i.value||0);
 });
 
-}
-
+document.querySelectorAll(".sisa").forEach(i=>{
+let item = i.dataset.item;
+if(!hasil[item]) hasil[item]={barang:item,masuk:0,sisa:0};
+hasil[item].sisa = Number(i.value||0);
 });
 
-// DATA
-let data={
-
+let data = {
 tanggal:document.getElementById("tanggal").value,
-
 waktu:new Date().toISOString(),
-
 tempat:document.getElementById("tempat").value,
-
-jenis:document.getElementById("jenis").value,
-
-items:items,
-
+items:Object.values(hasil),
 catatan:document.getElementById("catatan").value
-
 };
 
 await db.ref("jajan").push(data);
 
-alert("Data berhasil disimpan");
+alert("Tersimpan!");
 
-// reset input jumlah
-document.querySelectorAll(".jumlah").forEach(input=>{
-input.value="";
-});
-
-// reset catatan
+document.querySelectorAll(".masuk,.sisa").forEach(i=>i.value="");
 document.getElementById("catatan").value="";
-
 }
 
-</script>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
-<script>
-
-firebase.initializeApp({
-
-databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.app/"
-
-});
-
-const db=firebase.database();
-
+// INIT PAGE
 window.onload=function(){
+document.getElementById("tanggal").value =
+new Date().toISOString().split("T")[0];
 
 loadItems();
-
-}
+};
 
 </script>
 
