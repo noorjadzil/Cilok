@@ -613,46 +613,6 @@ document.getElementById("hargaItem").value="";
 
 }
 
-// SISIPKAN ITEM
-function sisipkanItem(index){
-
-let nama=prompt("Nama item baru");
-
-if(!nama) return;
-
-let harga=prompt("Harga item");
-
-if(!harga) return;
-
-db.ref("items").once("value").then(snap=>{
-
-let arr=[];
-
-snap.forEach(c=>{
-
-arr.push(c.val());
-
-});
-
-arr.splice(index+1,0,{
-nama:nama,
-harga:Number(harga)
-});
-
-db.ref("items").remove().then(()=>{
-
-arr.forEach(item=>{
-
-db.ref("items").push(item);
-
-});
-
-});
-
-});
-
-}
-
 // UPDATE HARGA
 function updateHarga(key,harga){
 
