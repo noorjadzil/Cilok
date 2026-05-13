@@ -376,7 +376,13 @@ await db.ref("jajan").push(data);
 
 alert("Data berhasil disimpan");
 
-location.reload();
+// reset input jumlah
+document.querySelectorAll(".jumlah").forEach(input=>{
+input.value="";
+});
+
+// reset catatan
+document.getElementById("catatan").value="";
 
 }
 
