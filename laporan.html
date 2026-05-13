@@ -81,15 +81,13 @@ font-weight:bold;
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <script>
-
 firebase.initializeApp({
 databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.app/"
 });
+
 const db=firebase.database();
 
-/* =========================
-NAV
-========================= */
+/* ================= NAV ================= */
 let limit = 5;
 
 function kembali(){
@@ -97,6 +95,7 @@ window.location.href="index.html";
 }
 
 function showTab(t){
+
 document.getElementById("tabLaporan").style.display = (t==="laporan")?"block":"none";
 document.getElementById("tabHarian").style.display = (t==="harian")?"block":"none";
 document.getElementById("tabBulanan").style.display = (t==="bulanan")?"block":"none";
@@ -104,11 +103,13 @@ document.getElementById("tabBulanan").style.display = (t==="bulanan")?"block":"n
 document.getElementById("btn1").className="tab-btn "+(t==="laporan"?"active":"nonactive");
 document.getElementById("btn2").className="tab-btn "+(t==="harian"?"active":"nonactive");
 document.getElementById("btn3").className="tab-btn "+(t==="bulanan"?"active":"nonactive");
+
 }
 
-/* =========================
-LAPORAN (5 TERAKHIR + LOAD MORE)
-========================= */
+/* default tampil */
+showTab("laporan");
+
+/* ================= LAPORAN ================= */
 function loadLaporan(){
 
 db.ref("jajan").limitToLast(limit).once("value",snap=>{
@@ -138,6 +139,7 @@ box.innerHTML+=`
 });
 
 });
+
 }
 
 function loadMore(){
@@ -145,9 +147,7 @@ limit += 5;
 loadLaporan();
 }
 
-/* =========================
-REKAP HARIAN (SIMPLIFY)
-========================= */
+/* ================= HARIAN ================= */
 function loadHarian(){
 
 db.ref("jajan").once("value",snap=>{
@@ -166,17 +166,20 @@ grup[t]={masuk:0,sisa:0};
 }
 
 (d.items||[]).forEach(i=>{
-if((d.jenis||"").includes("masuk")) grup[t].masuk+=Number(i.jumlah||0);
-if((d.jenis||"").includes("sisa")) grup[t].sisa+=Number(i.jumlah||0);
+let j=Number(i.jumlah||0);
+
+if((d.jenis||"").includes("masuk")) grup[t].masuk+=j;
+if((d.jenis||"").includes("sisa")) grup[t].sisa+=j;
 });
 });
 
 let no=1;
-box.innerHTML=`<table>
+
+let html=`<table>
 <tr><th>No</th><th>Tanggal</th><th>Masuk</th><th>Sisa</th></tr>`;
 
 Object.keys(grup).forEach(k=>{
-box.innerHTML+=`
+html+=`
 <tr>
 <td>${no++}</td>
 <td>${k}</td>
@@ -185,23 +188,24 @@ box.innerHTML+=`
 </tr>`;
 });
 
-box.innerHTML+="</table>";
+box.innerHTML=html+"</table>";
 
 });
+
 }
 
-/* =========================
-REKAP BULANAN
-========================= */
+/* ================= BULANAN (FIX TOTAL BRACKET ERROR) ================= */
 function loadBulanan(){
 
 db.ref("jajan").once("value",snap=>{
 
-let hargaMap={};
 db.ref("items").once("value",snap2=>{
+
+let hargaMap={};
+
 snap2.forEach(c=>{
 let d=c.val();
-hargaMap[(d.nama||"").toLowerCase()]=Number(d.harga||0);
+hargaMap[(d.nama||"").toLowerCase()] = Number(d.harga||0);
 });
 
 let box=document.getElementById("tabBulanan");
@@ -211,12 +215,14 @@ let grup={};
 
 snap.forEach(c=>{
 let d=c.val();
+
 let date=new Date(d.waktu);
-let bulan=date.getFullYear()+"-"+(date.getMonth()+1);
+let bulan = date.getFullYear()+"-"+(date.getMonth()+1);
 
 if(!grup[bulan]) grup[bulan]={};
 
 (d.items||[]).forEach(i=>{
+
 let nama=i.barang.toLowerCase();
 let j=Number(i.jumlah||0);
 let h=hargaMap[nama]||0;
@@ -229,15 +235,21 @@ if((d.jenis||"").includes("masuk")) grup[bulan][nama].masuk+=j;
 if((d.jenis||"").includes("sisa")) grup[bulan][nama].sisa+=j;
 
 });
+
 });
 
-let totalAll=0;
 let no=1;
+let totalAll=0;
 
-box.innerHTML="<table><tr><th>No</th><th>Item</th><th>Masuk</th><th>Sisa</th><th>Harga</th><th>Terjual</th><th>Total</th></tr>";
+let html=`<table>
+<tr>
+<th>No</th><th>Item</th><th>Masuk</th><th>Sisa</th>
+<th>Harga</th><th>Terjual</th><th>Total</th>
+</tr>`;
 
 Object.keys(grup).forEach(b=>{
 Object.keys(grup[b]).forEach(item=>{
+
 let g=grup[b][item];
 let terjual=g.masuk-g.sisa;
 if(terjual<0) terjual=0;
@@ -245,7 +257,7 @@ if(terjual<0) terjual=0;
 let total=terjual*g.harga;
 totalAll+=total;
 
-box.innerHTML+=`
+html+=`
 <tr>
 <td>${no++}</td>
 <td>${item}</td>
@@ -256,11 +268,16 @@ box.innerHTML+=`
 <td>${total}</td>
 </tr>`;
 });
-});
-
-box.innerHTML+=`</table><br><b>Total Keseluruhan: Rp ${totalAll.toLocaleString()}</b>`;
 
 });
+
+box.innerHTML = html + `</table><br>
+<b>Total Keseluruhan: Rp ${totalAll.toLocaleString()}</b>`;
+
+});
+
+});
+
 }
 
 /* INIT */
