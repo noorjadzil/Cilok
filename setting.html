@@ -418,26 +418,26 @@ db.ref("items").on("value",snap=>{
 list.innerHTML="";
 
 if(!snap.exists()){
-
 list.innerHTML=`
 <div class="empty">
 Belum ada item
 </div>
 `;
-
 return;
-
 }
 
 let items=[];
 
 snap.forEach(c=>{
-
 items.push({
 key:c.key,
 data:c.val()
 });
+});
 
+/* 🔥 FIX URUTAN DI SINI */
+items.sort((a,b)=>{
+return (a.data.urutan || 0) - (b.data.urutan || 0);
 });
 
 items.forEach((item,index)=>{
@@ -449,44 +449,26 @@ let nama=data.nama || data;
 let harga=data.harga || 0;
 
 let div=document.createElement("div");
-
 div.className="row";
 
 div.innerHTML=`
 
 <div class="item-info">
-
-<div class="item-name">
-${nama}
-</div>
-
+<div class="item-name">${nama}</div>
 <div class="item-price">
 Rp ${Number(harga).toLocaleString("id-ID")}
 </div>
-
 </div>
 
 <input
 type="number"
 value="${harga}"
 class="price-input"
-onchange="updateHarga('${key}',this.value)"
->
+onchange="updateHarga('${key}',this.value)">
 
-<button
-class="plus-btn"
-onclick="showInsertForm(${index})"
->
-+
-</button>
+<button class="plus-btn" onclick="showInsertForm(${index})">+</button>
 
-<button
-class="delete-btn"
-onclick="hapusItem('${key}')"
->
-🗑️
-</button>
-
+<button class="delete-btn" onclick="hapusItem('${key}')">🗑️</button>
 `;
 
 list.appendChild(div);
@@ -550,14 +532,11 @@ document.getElementById("insertNama").focus();
 function sisipkanItem(index){
 
 let nama=document.getElementById("insertNama").value.trim();
-
 let harga=document.getElementById("insertHarga").value;
 
 if(!nama || !harga){
-
 alert("Isi nama dan harga");
 return;
-
 }
 
 db.ref("items").once("value").then(snap=>{
@@ -565,22 +544,25 @@ db.ref("items").once("value").then(snap=>{
 let arr=[];
 
 snap.forEach(c=>{
-
 arr.push(c.val());
-
 });
 
+/* WAJIB URUTKAN DULU */
+arr.sort((a,b)=>(a.urutan||0)-(b.urutan||0));
+
+/* SISIPKAN DI POSISI YANG DIPILIH */
 arr.splice(index+1,0,{
 nama:nama,
-harga:Number(harga)
+harga:Number(harga),
+urutan:0 // sementara
 });
 
+/* 🔥 RE-INDEX ULANG SEMUA ITEM */
 db.ref("items").remove().then(()=>{
 
-arr.forEach(item=>{
-
+arr.forEach((item,i)=>{
+item.urutan = i + 1;   // INI YANG PENTING
 db.ref("items").push(item);
-
 });
 
 });
@@ -603,11 +585,17 @@ return;
 
 }
 
+db.ref("items").once("value").then(snap=>{
+
+let count = snap.numChildren();
+
 db.ref("items").push({
 nama:nama,
-harga:Number(harga)
+harga:Number(harga),
+urutan: count + 1
 });
 
+});
 document.getElementById("namaItem").value="";
 document.getElementById("hargaItem").value="";
 
