@@ -231,20 +231,16 @@ let box = document.getElementById("tabBulanan");
 
 let grup = {};
 
-/* INIT 1–31 */
+/* KUMPULKAN DATA */
 allData.forEach(d=>{
 
 if(!d.tanggal) return;
 
-let day = d.tanggal.split("-")[2]; // 01-31
+let day = d.tanggal.split("-")[2];
 let bulan = getBulan(d.tanggal);
 
 if(!grup[bulan]){
-
-grup[bulan] = {
-items:{}
-};
-
+grup[bulan] = {items:{}};
 }
 
 let items = (Array.isArray(d.items)?d.items:Object.values(d.items||{}))
@@ -253,19 +249,23 @@ let items = (Array.isArray(d.items)?d.items:Object.values(d.items||{}))
 items.forEach(i=>{
 
 let nama = i.barang;
+
 let masuk = num(i.masuk);
 let retur = num(i.retur);
-let terjual = masuk - retur;
 
 if(!grup[bulan].items[nama]){
 grup[bulan].items[nama] = {};
 }
 
 if(!grup[bulan].items[nama][day]){
-grup[bulan].items[nama][day] = 0;
+grup[bulan].items[nama][day] = {
+masuk:0,
+retur:0
+};
 }
 
-grup[bulan].items[nama][day] += terjual;
+grup[bulan].items[nama][day].masuk += masuk;
+grup[bulan].items[nama][day].retur += retur;
 
 });
 
@@ -289,7 +289,7 @@ html += `
 <th>Type</th>
 `;
 
-/* HEADER 1-31 */
+/* 1–31 HEADER */
 for(let i=1;i<=31;i++){
 html += `<th>${i}</th>`;
 }
@@ -298,16 +298,29 @@ html += `</tr>`;
 
 Object.keys(grup[bulan].items).forEach(item=>{
 
-/* ROW MASUK (terjual per hari) */
+/* MASUK */
 html += `
 <tr>
-<td rowspan="1"><b>${item}</b></td>
-<td>Terjual</td>
+<td rowspan="2"><b>${item}</b></td>
+<td>Masuk</td>
 `;
 
 for(let i=1;i<=31;i++){
 let key = String(i).padStart(2,"0");
-html += `<td>${grup[bulan].items[item][key]||0}</td>`;
+html += `<td>${grup[bulan].items[item][key]?.masuk || 0}</td>`;
+}
+
+html += `</tr>`;
+
+/* RETUR */
+html += `
+<tr>
+<td>Retur</td>
+`;
+
+for(let i=1;i<=31;i++){
+let key = String(i).padStart(2,"0");
+html += `<td>${grup[bulan].items[item][key]?.retur || 0}</td>`;
 }
 
 html += `</tr>`;
