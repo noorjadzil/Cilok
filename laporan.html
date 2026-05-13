@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<title>Laporan Jajan Pro</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan MAQSHOF</title>
 
 <style>
 body{
@@ -89,7 +90,7 @@ margin-left:6px;
 <body>
 
 <div class="header">
-<div><b>📊 Laporan Jajan</b></div>
+<div><b>📊 Laporan MAQSHOF</b></div>
 <a href="index.html">⬅ Kembali</a>
 </div>
 
@@ -103,11 +104,8 @@ margin-left:6px;
 
 <div id="laporan" class="card"></div>
 
-<button onclick="loadMore()" style="width:100%;padding:10px;margin-top:10px;border:none;border-radius:10px;background:#06b6d4">
-Muat Lagi
-</button>
-
 <div id="harian" class="card" style="display:none"></div>
+
 <div id="bulanan" class="card" style="display:none"></div>
 
 </div>
@@ -123,40 +121,8 @@ databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.a
 
 const db=firebase.database();
 
-let limit=8;
-
-/* ================= AMAN PARSER (INI KUNCI FIX) ================= */
-function norm(t){
-return (t||"").toString().toLowerCase().trim();
-}
-
-function detectType(t){
-t = norm(t);
-if(t.includes("masuk")) return "masuk";
-if(t.includes("retur")) return "retur";
-if(t.includes("sisa")) return "retur";
-return "unknown";
-}
-
-function getDateKey(t){
-let d=new Date(t);
-return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
-}
-
-function getMonthKey(t){
-let d=new Date(t);
-return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0');
-}
-
-function monthName(m){
-const nama=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-let [y,mm]=m.split("-");
-return nama[parseInt(mm)-1]+" "+y;
-}
-
 /* ================= TAB ================= */
 function showTab(t){
-
 document.getElementById("laporan").style.display=(t==="laporan")?"block":"none";
 document.getElementById("harian").style.display=(t==="harian")?"block":"none";
 document.getElementById("bulanan").style.display=(t==="bulanan")?"block":"none";
@@ -169,7 +135,7 @@ document.getElementById("b3").className=(t==="bulanan")?"active":"nonactive";
 /* ================= LAPORAN ================= */
 function loadLaporan(){
 
-db.ref("jajan").limitToLast(limit).once("value",snap=>{
+db.ref("jajan").limitToLast(20).once("value",snap=>{
 
 let box=document.getElementById("laporan");
 box.innerHTML="";
@@ -186,13 +152,13 @@ arr.reverse();
 arr.forEach(d=>{
 
 let items=(d.items||[]).map(i=>{
-return `• ${i.barang} = ${i.jumlah}`;
+if(!i) return "";
+return `• ${i.barang} = Masuk:${i.masuk||0} | Retur:${i.retur||0}`;
 }).join("<br>");
 
 box.innerHTML+=`
 <div class="card">
-<b>${d.jenis}</b><br>
-<small>${new Date(d.waktu).toLocaleString()}</small>
+<small>${new Date(d.waktu||Date.now()).toLocaleString()}</small>
 <br><br>
 ${items}
 </div>`;
@@ -202,49 +168,45 @@ ${items}
 
 }
 
-function loadMore(){
-limit+=5;
-loadLaporan();
-}
-
 /* ================= HARIAN ================= */
 function loadHarian(){
 
-db.ref("jajan").once("value",snap=>{
+db.ref("jajan").limitToLast(200).once("value",snap=>{
 
 let data={};
 let tanggalSet=new Set();
 
 snap.forEach(c=>{
 let d=c.val();
-let tgl=getDateKey(d.waktu);
+let tgl=(d.waktu||"").slice(0,10);
 tanggalSet.add(tgl);
-
-let type=detectType(d.jenis);
 
 (d.items||[]).forEach(i=>{
 
+if(!i) return;
+
 let nama=i.barang;
-let j=Number(i.jumlah||0);
+let masuk=Number(i.masuk||0);
+let retur=Number(i.retur||0);
 
 if(!data[nama]) data[nama]={};
 if(!data[nama][tgl]) data[nama][tgl]={masuk:0,retur:0};
 
-if(type==="masuk") data[nama][tgl].masuk+=j;
-if(type==="retur") data[nama][tgl].retur+=j;
+data[nama][tgl].masuk+=masuk;
+data[nama][tgl].retur+=retur;
 
 });
 });
 
 let tglArr=[...tanggalSet].sort();
 
-let html=`<div class="scroll"><table><thead><tr><th>Item</th><th>Type</th>`;
+let html=`<div class="scroll"><table><tr><th>Item</th><th>Type</th>`;
 
 tglArr.forEach(t=>{
 html+=`<th>${t.split("-")[2]}</th>`;
 });
 
-html+=`</tr></thead><tbody>`;
+html+=`</tr>`;
 
 Object.keys(data).forEach(item=>{
 
@@ -263,7 +225,7 @@ html+=`<td>${data[item][t]?.retur||0}</td>`;
 html+=`</tr>`;
 });
 
-html+=`</tbody></table></div>`;
+html+=`</table></div>`;
 
 document.getElementById("harian").innerHTML=html;
 
@@ -280,32 +242,33 @@ let harga={};
 
 itemSnap.forEach(c=>{
 let d=c.val();
-harga[norm(d.nama)] = Number(d.harga||0);
+harga[(d.nama||"").toLowerCase()] = Number(d.harga||0);
 });
 
-db.ref("jajan").once("value",snap=>{
+db.ref("jajan").limitToLast(200).once("value",snap=>{
 
 let grup={};
 
 snap.forEach(c=>{
 let d=c.val();
-let bulan=getMonthKey(d.waktu);
+let bulan=(d.waktu||"").slice(0,7);
 
 if(!grup[bulan]) grup[bulan]={};
 
-let type=detectType(d.jenis);
-
 (d.items||[]).forEach(i=>{
 
-let nama=norm(i.barang);
-let j=Number(i.jumlah||0);
+if(!i) return;
+
+let nama=(i.barang||"").toLowerCase();
+let masuk=Number(i.masuk||0);
+let retur=Number(i.retur||0);
 
 if(!grup[bulan][nama]){
 grup[bulan][nama]={masuk:0,retur:0,harga:harga[nama]||0};
 }
 
-if(type==="masuk") grup[bulan][nama].masuk+=j;
-if(type==="retur") grup[bulan][nama].retur+=j;
+grup[bulan][nama].masuk+=masuk;
+grup[bulan][nama].retur+=retur;
 
 });
 
@@ -317,11 +280,9 @@ Object.keys(grup).forEach(b=>{
 
 let total=0;
 
-html+=`<h3>${monthName(b)} <span class="badge">Monthly</span></h3>
+html+=`<h3>${b} <span class="badge">Bulanan</span></h3>
 <div class="scroll"><table>
-<tr>
-<th>Item</th><th>Masuk</th><th>Retur</th><th>Terjual</th><th>Total</th>
-</tr>`;
+<tr><th>Item</th><th>Masuk</th><th>Retur</th><th>Terjual</th><th>Total</th></tr>`;
 
 Object.keys(grup[b]).forEach(item=>{
 
@@ -336,17 +297,14 @@ html+=`
 <td>${g.masuk}</td>
 <td>${g.retur}</td>
 <td>${terjual}</td>
-<td>${tot}</td>
+<td>${tot.toLocaleString("id-ID")}</td>
 </tr>`;
 });
 
-html+=`</table></div>
-<b>Total ${monthName(b)}: Rp ${total.toLocaleString("id-ID")}</b><br><br>`;
+html+=`</table></div><b>Total: Rp ${total.toLocaleString("id-ID")}</b><br><br>`;
 });
 
 document.getElementById("bulanan").innerHTML=html;
-
-});
 
 });
 
