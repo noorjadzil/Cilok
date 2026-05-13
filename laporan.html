@@ -119,30 +119,21 @@ databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.a
 
 const db=firebase.database();
 
-/* ================= NORMALISASI DATA ================= */
+/* ================= NORMALISASI ================= */
 function toNum(v){
 if(v===null || v===undefined) return 0;
-
 if(typeof v==="string"){
 v=v.trim().toLowerCase();
-if(v==="o") return 0;   // huruf O
-if(v==="") return 0;
+if(v==="o" || v==="") return 0;
 }
-
 let n=Number(v);
 return isNaN(n)?0:n;
 }
 
 function getItems(d){
 if(!d) return [];
-
-// kalau object (bukan array)
-if(typeof d==="object" && !Array.isArray(d)){
-return Object.values(d);
-}
-
 if(Array.isArray(d)) return d;
-
+if(typeof d==="object") return Object.values(d);
 return [];
 }
 
@@ -179,38 +170,32 @@ arr.forEach(d=>{
 let items=getItems(d.items);
 
 let htmlItems=items.map(i=>{
-if(!i) return "";
-
-let barang=i.barang||"-";
-let masuk=toNum(i.masuk);
-let retur=toNum(i.retur);
-
-return `• ${barang} = Masuk:${masuk} | Retur:${retur}`;
+return `• ${i.barang} = Masuk:${toNum(i.masuk)} | Retur:${toNum(i.retur)}`;
 }).join("<br>");
 
 box.innerHTML+=`
 <div class="card">
-<small>${new Date(d.waktu||Date.now()).toLocaleString()}</small>
+<small>${d.tanggal || "-"}</small>
 <br><br>
 ${htmlItems}
 </div>`;
 });
 
 });
-
 }
 
 /* ================= HARIAN ================= */
 function loadHarian(){
 
-db.ref("jajan").limitToLast(200).once("value",snap=>{
+db.ref("jajan").once("value",snap=>{
 
 let data={};
 let tanggalSet=new Set();
 
 snap.forEach(c=>{
 let d=c.val();
-let tgl=(d.waktu||"").slice(0,10);
+
+let tgl=d.tanggal || "";
 tanggalSet.add(tgl);
 
 getItems(d.items).forEach(i=>{
@@ -233,7 +218,7 @@ let tglArr=[...tanggalSet].sort();
 let html=`<div class="scroll"><table><tr><th>Item</th><th>Type</th>`;
 
 tglArr.forEach(t=>{
-html+=`<th>${t.split("-")[2]}</th>`;
+html+=`<th>${t.split("-")[2]||"-"}</th>`;
 });
 
 html+=`</tr>`;
@@ -260,7 +245,6 @@ html+=`</table></div>`;
 document.getElementById("harian").innerHTML=html;
 
 });
-
 }
 
 /* ================= BULANAN ================= */
@@ -275,13 +259,14 @@ let d=c.val();
 harga[(d.nama||"").toLowerCase()] = toNum(d.harga);
 });
 
-db.ref("jajan").limitToLast(200).once("value",snap=>{
+db.ref("jajan").once("value",snap=>{
 
 let grup={};
 
 snap.forEach(c=>{
 let d=c.val();
-let bulan=(d.waktu||"").slice(0,7);
+
+let bulan=(d.tanggal||"").slice(0,7);
 
 if(!grup[bulan]) grup[bulan]={};
 
