@@ -246,22 +246,34 @@ let hasil = {};
 
 document.querySelectorAll(".masuk").forEach(i=>{
 let item = i.dataset.item;
-if(!hasil[item]) hasil[item]={barang:item,masuk:0,retur:0};
-hasil[item].masuk = Number(i.value||0);
+
+if(!hasil[item]){
+hasil[item]={barang:item,masuk:0,retur:0};
+}
+
+let val = i.value.trim();
+hasil[item].masuk = (val==="" || val==="O" || val==="o") ? 0 : Number(val);
 });
 
 document.querySelectorAll(".retur").forEach(i=>{
 let item = i.dataset.item;
-if(!hasil[item]) hasil[item]={barang:item,masuk:0,retur:0};
-hasil[item].retur = Number(i.value||0);
+
+if(!hasil[item]){
+hasil[item]={barang:item,masuk:0,retur:0};
+}
+
+let val = i.value.trim();
+hasil[item].retur = (val==="" || val==="O" || val==="o") ? 0 : Number(val);
 });
 
+let tanggal = document.getElementById("tanggal").value;
+
 let data = {
-tanggal:document.getElementById("tanggal").value,
-waktu:new Date().toISOString(),
-tempat:document.getElementById("tempat").value,
-items:Object.values(hasil),
-catatan:document.getElementById("catatan").value
+tanggal: tanggal,
+waktu: tanggal + "T00:00:00.000Z", // 🔥 FIX PENTING BIAR LAPORAN STABIL
+tempat: document.getElementById("tempat").value,
+items: Object.values(hasil),
+catatan: document.getElementById("catatan").value
 };
 
 await db.ref("jajan").push(data);
