@@ -218,11 +218,18 @@ let daftarItems = [];
 function loadItems(){
 db.ref("items").once("value",snap=>{
 daftarItems = [];
+
 snap.forEach(c=>{
 let d = c.val();
-daftarItems.push(d.nama || d);
+daftarItems.push({
+nama: d.nama,
+urutan: d.urutan || 0
 });
-daftarItems.sort();
+});
+
+/* 🔥 FIX URUTAN UTAMA */
+daftarItems.sort((a,b)=>a.urutan - b.urutan);
+
 renderItems();
 });
 }
@@ -234,13 +241,14 @@ c.innerHTML = "";
 daftarItems.forEach(item=>{
 c.innerHTML += `
 <div class="item-row">
-<div class="item-name">${item}</div>
-<input type="number" class="masuk" data-item="${item}" placeholder="Masuk">
-<input type="number" class="retur" data-item="${item}" placeholder="Retur">
+<div class="item-name">${item.nama}</div>
+<input type="number" class="masuk" data-item="${item.nama}" placeholder="Masuk">
+<input type="number" class="retur" data-item="${item.nama}" placeholder="Retur">
 </div>`;
 });
 }
 
+// ================= KIRIM =================
 async function kirim(){
 
 let hasil = {};
@@ -253,8 +261,8 @@ let retur = row.querySelector(".retur").value;
 
 hasil[item] = {
 barang: item,
-masuk: (masuk==="" || masuk==="O" || masuk==="o") ? 0 : isNaN(Number(masuk)) ? 0 : Number(masuk),
-retur: (retur==="" || retur==="O" || retur==="o") ? 0 : isNaN(Number(retur)) ? 0 : Number(retur)
+masuk: (masuk==="" || masuk==="O" || masuk==="o") ? 0 : Number(masuk),
+retur: (retur==="" || retur==="O" || retur==="o") ? 0 : Number(retur)
 };
 });
 
@@ -280,6 +288,8 @@ alert("Tersimpan!");
 document.querySelectorAll(".masuk,.retur").forEach(i=>i.value="");
 document.getElementById("catatan").value="";
 }
+
+// ================= INIT =================
 window.onload=function(){
 const d = new Date();
 const local = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
