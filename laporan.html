@@ -103,9 +103,7 @@ margin-left:6px;
 </div>
 
 <div id="laporan" class="card"></div>
-
 <div id="harian" class="card" style="display:none"></div>
-
 <div id="bulanan" class="card" style="display:none"></div>
 
 </div>
@@ -120,6 +118,33 @@ databaseURL:"https://cilok-86ced-default-rtdb.asia-southeast1.firebasedatabase.a
 });
 
 const db=firebase.database();
+
+/* ================= NORMALISASI DATA ================= */
+function toNum(v){
+if(v===null || v===undefined) return 0;
+
+if(typeof v==="string"){
+v=v.trim().toLowerCase();
+if(v==="o") return 0;   // huruf O
+if(v==="") return 0;
+}
+
+let n=Number(v);
+return isNaN(n)?0:n;
+}
+
+function getItems(d){
+if(!d) return [];
+
+// kalau object (bukan array)
+if(typeof d==="object" && !Array.isArray(d)){
+return Object.values(d);
+}
+
+if(Array.isArray(d)) return d;
+
+return [];
+}
 
 /* ================= TAB ================= */
 function showTab(t){
@@ -151,16 +176,23 @@ arr.reverse();
 
 arr.forEach(d=>{
 
-let items=(d.items||[]).map(i=>{
+let items=getItems(d.items);
+
+let htmlItems=items.map(i=>{
 if(!i) return "";
-return `• ${i.barang} = Masuk:${i.masuk||0} | Retur:${i.retur||0}`;
+
+let barang=i.barang||"-";
+let masuk=toNum(i.masuk);
+let retur=toNum(i.retur);
+
+return `• ${barang} = Masuk:${masuk} | Retur:${retur}`;
 }).join("<br>");
 
 box.innerHTML+=`
 <div class="card">
 <small>${new Date(d.waktu||Date.now()).toLocaleString()}</small>
 <br><br>
-${items}
+${htmlItems}
 </div>`;
 });
 
@@ -181,13 +213,11 @@ let d=c.val();
 let tgl=(d.waktu||"").slice(0,10);
 tanggalSet.add(tgl);
 
-(d.items||[]).forEach(i=>{
+getItems(d.items).forEach(i=>{
 
-if(!i) return;
-
-let nama=i.barang;
-let masuk=Number(i.masuk||0);
-let retur=Number(i.retur||0);
+let nama=i.barang||"-";
+let masuk=toNum(i.masuk);
+let retur=toNum(i.retur);
 
 if(!data[nama]) data[nama]={};
 if(!data[nama][tgl]) data[nama][tgl]={masuk:0,retur:0};
@@ -242,7 +272,7 @@ let harga={};
 
 itemSnap.forEach(c=>{
 let d=c.val();
-harga[(d.nama||"").toLowerCase()] = Number(d.harga||0);
+harga[(d.nama||"").toLowerCase()] = toNum(d.harga);
 });
 
 db.ref("jajan").limitToLast(200).once("value",snap=>{
@@ -255,13 +285,11 @@ let bulan=(d.waktu||"").slice(0,7);
 
 if(!grup[bulan]) grup[bulan]={};
 
-(d.items||[]).forEach(i=>{
-
-if(!i) return;
+getItems(d.items).forEach(i=>{
 
 let nama=(i.barang||"").toLowerCase();
-let masuk=Number(i.masuk||0);
-let retur=Number(i.retur||0);
+let masuk=toNum(i.masuk);
+let retur=toNum(i.retur);
 
 if(!grup[bulan][nama]){
 grup[bulan][nama]={masuk:0,retur:0,harga:harga[nama]||0};
